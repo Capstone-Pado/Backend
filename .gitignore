@@ -1,5 +1,6 @@
 # 환경변수 파일
 .env
+.env.gpg
 
 # Gradle 캐시ㆍ출력물
 .gradle/
