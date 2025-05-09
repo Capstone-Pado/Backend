@@ -1,0 +1,23 @@
+services:
+  # --- Database ---
+  db:
+    image: mysql:8.0
+    container_name: pado-db-dev
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER:     ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+    volumes:
+      - db-data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 3s
+      retries: 5
+volumes:
+  db-data:
+   name: pado-db-data-dev
