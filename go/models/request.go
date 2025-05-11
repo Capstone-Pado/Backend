@@ -5,12 +5,27 @@ type EC2ProvisionRequest struct {
 	ComponentId  string `json:"component_id"`
 	InstanceName string `json:"instance_name"` // EC2 인스턴스 이름
 	InstanceType string `json:"instance_type"`
+	Region       string `json:"region"` // S3 버킷 리전
 	AMI          string `json:"ami"`
 	KeyName      string `json:"key_name"`
 	OpenPorts    []int  `json:"open_ports"`
 	PublicKey    string `json:"public_key"` // SSH 공개키
 	AWSAccessKey string `json:"aws_access_key"`
 	AWSSecretKey string `json:"aws_secret_key"`
+}
+
+type NodeBuildSpecTemplateData struct {
+	S3      S3ProvisionRequest
+	Service ServiceRequest
+}
+
+type S3ProvisionRequest struct {
+	DeploymentID string `json:"user_id"`
+	ComponentId  string `json:"component_id"`
+	BucketName   string `json:"bucket_name"` // S3 버킷 이름
+	Region       string `json:"region"`      // S3 버킷 리전
+	AWSAccessKey string `json:"aws_access"`
+	AWSSecretKey string `json:"aws_secret"`
 }
 
 type ServiceRequest struct {

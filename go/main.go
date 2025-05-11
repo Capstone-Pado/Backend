@@ -1,6 +1,10 @@
 package main
 
-import "pado/components"
+import (
+	"os"
+	"pado/components"
+	"pado/models"
+)
 
 // ProvisionEC2가 정의된 패키지
 
@@ -10,6 +14,7 @@ func main() {
 	// 	InstanceName: "crew-prod-ec2-user-api",
 	// 	DeploymentID: "crew-prod",
 	// 	ComponentId:  "ec2-user-api",
+	//	Resion:		  "ap-northeast-2"
 	// 	AMI:          "ami-0c9c942bd7bf113a2", // Ubuntu 22.04 in ap-northeast-2
 	// 	InstanceType: "t3.micro",
 	// 	OpenPorts:    []int{22, 80, 443, 8080},
@@ -71,5 +76,32 @@ func main() {
 	// }
 
 	// fmt.Println("✅ Spring service provisioned successfully.")
-	components.DestroyEC2("crew-prod", "ec2-user-api")
+
+	req_s3 := models.S3ProvisionRequest{
+		DeploymentID: "crew-prod",
+		ComponentId:  "crew-s3-assets",
+		BucketName:   "crew-s3-assets-test-2025",
+		Region:       "ap-northeast-2",
+		AWSAccessKey: os.Getenv("AWS_ACCESS_KEY"),
+		AWSSecretKey: os.Getenv("AWS_SECRET_KEY"),
+	}
+	components.DestroyS3("crew-prod", "crew-s3-assets")
+	components.ProvisionS3(req_s3)
+
+	req_react := models.ServiceRequest{
+		DeploymentID:      "crew-prod",
+		ServiceType:       "react",
+		ComponentId:       "react-user-web",
+		GitRepo:           "https://github.com/Capstone-Pado/React-test",
+		ParentComponentId: "crew-s3-assets",
+	}
+
+	req_Nodebuild := models.NodeBuildSpecTemplateData{
+		S3:      req_s3,
+		Service: req_react,
+	}
+	err := components.ProvisionReactService(req_Nodebuild)
+	if err != nil {
+		panic(err)
+	}
 }
