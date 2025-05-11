@@ -5,7 +5,7 @@ provider "aws" {
 }
 
 resource "aws_key_pair" "generated" {
-  key_name   = "{{ .KeyName }}"
+  key_name   = "tmp"
   public_key = <<EOT
 {{ .PublicKey }}
 EOT
@@ -13,29 +13,23 @@ EOT
 
 resource "aws_instance" "app" {
   ami           = "{{ .AMI }}"
-  instance_type = "{{ .InstanceType }}"
-  key_name      = "{{ .KeyName }}"
+  instance_type = "t3.micro"
+  key_name      = "tmp"
   tags = {
-    Name = "{{ .InstanceName }}"
+    Name = "Builder"
   }
   vpc_security_group_ids = [aws_security_group.app_sg.id]
+
 }
 
 resource "aws_security_group" "app_sg" {
   name = "app_sg"
 
-  dynamic "ingress" {
-    for_each = toset([
-{{- range $i, $p := .OpenPorts }}
-  {{- if $i}}, {{ end }}{{ $p }}
-{{- end }}
-])
-    content {
-      from_port   = ingress.value
-      to_port     = ingress.value
+  ingress {
+      from_port   = 22
+      to_port     = 22
       protocol    = "tcp"
       cidr_blocks = ["0.0.0.0/0"]
-    }
   }
 
   egress {
