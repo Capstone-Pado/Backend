@@ -8,6 +8,9 @@ sudo apt update -y
 sudo apt install -y docker.io
 
 # 2. 작업 디렉토리로 이동
+mkdir -p /home/ubuntu/{{ .ComponentId }}
+sudo chown -R ubuntu:ubuntu /home/ubuntu/{{ .ComponentId }}
+sudo chmod -R 755 /home/ubuntu/{{ .ComponentId }}
 cd /home/ubuntu/{{ .ComponentId }}
 mkdir -p mysql-data
 
