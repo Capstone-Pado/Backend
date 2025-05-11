@@ -22,6 +22,7 @@ type ServiceRequest struct {
 	// Spring 전용
 	GitRepo    string            `json:"git_repo"`
 	DockerPort int               `json:"docker_port"`
+	NginxPort  int               `json:"nginx_port"` // 예: 8080, 8081 등
 	BuildTool  string            `json:"build_tool"` // "gradle" or "maven"
 	JDKVersion string            `json:"jdk_version"`
 	Env        map[string]string `json:"env"` // 환경변수
