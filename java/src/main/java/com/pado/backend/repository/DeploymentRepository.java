@@ -1,9 +1,12 @@
-// package com.pado.backend.repository;
+package com.pado.backend.repository;
 
-// import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
-// import com.pado.backend.domain.Deployment;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-// public interface DeploymentRepository extends JpaRepository<Deployment, Long>{
-    
-// }
+import com.pado.backend.domain.Deployment;
+import com.pado.backend.domain.Project;
+
+public interface DeploymentRepository extends JpaRepository<Deployment, Long>{
+    public List<Deployment> findByProject(Project project);
+}

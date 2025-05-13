@@ -1,7 +1,8 @@
-// package com.pado.backend.repository;
-// import org.springframework.data.jpa.repository.JpaRepository;
-// import com.pado.backend.domain.User;
+package com.pado.backend.repository;
 
-// public interface UserRepository extends JpaRepository<User, Long> {
-    
-// }
+import org.springframework.data.jpa.repository.JpaRepository;
+import com.pado.backend.domain.User;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+    public User findByEmail(String email);
+}

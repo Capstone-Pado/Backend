@@ -1,9 +1,14 @@
-// package com.pado.backend.repository;
+package com.pado.backend.repository;
 
-// import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.List;
 
-// import com.pado.backend.domain.Component;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-// public interface ComponentRepository extends JpaRepository<Component, Long>{
-    
-// }
+import com.pado.backend.domain.Component;
+import com.pado.backend.domain.Project;
+
+@Repository
+public interface ComponentRepository extends JpaRepository<Component, Long>{
+    List<Component> findByProject(Project project);
+}
