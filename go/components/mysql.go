@@ -9,10 +9,12 @@ import (
 )
 
 func ProvisionMySQLService(req models.ServiceRequest) error {
-	// 1. 템플릿 렌더링
+	// 0. Init sh 파일 경로 설정
 	tplPath := "templates/service/mysql/init.sh.tpl"
 	scriptPath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentID, req.ComponentId)
 	_ = os.MkdirAll(scriptPath, 0755)
+
+	// 1. 쉘 스크립트 템플릿 렌더링
 	shPath := filepath.Join(scriptPath, "init.sh")
 	err := utils.RenderTemplate(tplPath, shPath, req)
 	if err != nil {

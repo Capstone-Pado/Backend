@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package provision;
+
+option go_package = "proto/";
+
+service ProvisioningService {
+  rpc StartEC2Spring(StartEC2SpringRequest) returns (ProvisionStartResponse);
+  rpc StartEC2MySQL(StartEC2MySQLRequest) returns (ProvisionStartResponse);
+  rpc StartS3React(StartS3ReactRequest) returns (ProvisionStartResponse);
+
+  rpc StreamProvisionLogs(ProvisionLogRequest) returns (stream ProvisionLog);
+  rpc StreamComponentLogs(ComponentLogRequest) returns (stream ProvisionLog);
+}
+
+message EC2Request {
+    string InstanceType = 1;
+    string Region = 2;
+    string AMI = 3;
+    string InstanceName = 4;
+    repeated int32 OpenPorts = 5;
+    string AWSAccessKey = 6;
+    string AWSSecretKey = 7;
+    string ComponentId = 8;
+}
+
+message S3Request {
+    string BucketName = 1;
+    string Region = 2;
+    string AWSAccessKey = 3;
+    string AWSSecretKey = 4;
+    string ComponentId = 5;
+}
+
+message GitCredential {
+    string ID = 1;
+    string Key = 2;
+}
+
+message ReactRequest {
+    string ParentComponentId = 1;
+    GitCredential GitCredential = 2;
+    string ComponentId = 3;
+    string GitRepo = 4;
+}
+
+message MySQLRequest {
+    string MySQLRootPassword = 1;
+    string MySQLDatabase = 2;
+    string MySQLUser = 3;
+    string MySQLPassword = 4;
+    int32 Port = 5;
+    string ParentComponentId = 6;
+    string ComponentId = 7;
+}
+
+message SpringRequest {
+    string ParentComponentId = 1;
+    string GitRepo = 2;
+    int32 NginxPort = 3;
+    string BuildTool = 4;
+    string JDKVersion = 5;
+    map<string, string> Env = 6 ;
+    GitCredential GitCredential = 7;
+    int32 DockerPort = 8;
+    string ComponentId = 9;
+}
+
+message StartEC2SpringRequest {
+    EC2Request EC2 = 1;
+    SpringRequest Spring = 2;
+    string DeploymentID = 3;
+}
+
+message StartS3ReactRequest {
+    S3Request S3 = 1;
+    ReactRequest React = 2;
+    string DeploymentID = 3;
+    string ComponentId = 4;
+}
+
+message StartEC2MySQLRequest {
+    EC2Request EC2 = 1;
+    MySQLRequest MySQL = 2;
+    string DeploymentID = 3;
+    string ComponentId = 4;
+}
+
+message ProvisionStartResponse {
+    string status = 1;
+    map<string, string> data = 2;
+}
+
+message ProvisionLogRequest {
+    string DeploymentID = 1;
+}
+
+message ComponentLogRequest {
+    string DeploymentID = 1;
+    string ComponentId = 2;
+}
+
+message ProvisionLog {
+    string ComponentId = 1;
+    string log_line = 2;
+}

@@ -19,13 +19,10 @@ func ProvisionS3(req models.S3ProvisionRequest) error {
 		return fmt.Errorf("template render error: %w", err)
 	}
 
-	// 2. Terraform init
-	if err := runTerraformCmd(basePath, "init"); err != nil {
-		return fmt.Errorf("terraform init error: %w", err)
-	}
-	// 3. Terraform apply
-	if err := runTerraformCmd(basePath, "apply", "-auto-approve"); err != nil {
-		return fmt.Errorf("terraform apply error: %w", err)
+	// 2. Terraform Run
+	err = RunTerraform(basePath)
+	if err != nil {
+		return fmt.Errorf("terraform run error: %w", err)
 	}
 
 	return nil

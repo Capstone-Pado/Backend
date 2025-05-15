@@ -10,6 +10,7 @@ import (
 )
 
 func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
+	// 0. Deploy 디렉토리 확인
 	basePath := "workspaces/" + req.S3.DeploymentID
 	info, err := os.Stat(basePath)
 	if os.IsNotExist(err) {
@@ -18,17 +19,18 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 	if !info.IsDir() {
 		return fmt.Errorf("deploy is not a directory: %w", err)
 	}
+	// 0-1. 서비스 디렉토리 생성
 	basePath = "workspaces/" + req.S3.DeploymentID + "/" + req.Service.ComponentId
 	_ = os.MkdirAll(basePath, 0755)
 
-	// 0. 키 쌍 자동 생성
+	// 0-2. 키 쌍 자동 생성
 	pubKey, privKey, err := utils.GenerateRSAKeyPair()
 	if err != nil {
 		return fmt.Errorf("key pair generation error: %w", err)
 	}
-
 	os.WriteFile(filepath.Join(basePath, "id_rsa"), privKey, 0600)
 
+	// 1. 임시 EC2 프로비저닝 요청 생성
 	tmp := models.EC2ProvisionRequest{
 		AMI:          "ami-0c9c942bd7bf113a2",
 		Region:       req.S3.Region,
@@ -37,7 +39,6 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 		AWSSecretKey: os.Getenv("AWS_SECRET_KEY"),
 	}
 
-	// 0-2. 요청에 키 관련 필드 삽입 (req는 구조체 복사이므로 안전)
 	tmp.KeyName = tmp.ComponentId
 	tmp.PublicKey = pubKey
 	tfPath := filepath.Join(basePath, "main.tf")
@@ -46,16 +47,13 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 		return fmt.Errorf("template render error: %w", err)
 	}
 
-	// 2. Terraform init
-	if err := runTerraformCmd(basePath, "init"); err != nil {
-		return fmt.Errorf("terraform init error: %w", err)
+	// 2. Terraform Run
+	err = RunTerraform(basePath)
+	if err != nil {
+		return fmt.Errorf("terraform run error: %w", err)
 	}
 
-	// 3. Terraform apply
-	if err := runTerraformCmd(basePath, "apply", "-auto-approve"); err != nil {
-		return fmt.Errorf("terraform apply error: %w", err)
-	}
-
+	// 3. 쉘 스크립트 템플릿 렌더링
 	tplPath := "templates/service/react/init.sh.tpl"
 	shPath := filepath.Join(basePath, "init.sh")
 	err = utils.RenderTemplate(tplPath, shPath, req)
@@ -63,6 +61,7 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 		return fmt.Errorf("template render error: %w", err)
 	}
 
+	// 4. 쉘 스크립트 실행
 	ip, err := utils.GetResourceIP(req.S3.DeploymentID, req.Service.ComponentId)
 	if err != nil {
 		return fmt.Errorf("get resource ip error: %w", err)
@@ -78,6 +77,7 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 	if err != nil {
 		return fmt.Errorf("run remote script error: %w", err)
 	}
+	// 5. 임시 EC2 Destroy
 	DestroyEC2(req.S3.DeploymentID, req.Service.ComponentId)
 	return nil
 }

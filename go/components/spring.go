@@ -21,7 +21,7 @@ func ProvisionSpringService(req models.ServiceRequest) error {
 	tplPath := "templates/service/spring/init.sh.tpl"
 	scriptPath := fmt.Sprintf("%s/%s", basePath, req.ComponentId)
 	_ = os.MkdirAll(scriptPath, 0755)
-	shPath := filepath.Join(basePath, "init.sh")
+	shPath := filepath.Join(scriptPath, "init.sh")
 	err = utils.RenderTemplate(tplPath, shPath, req)
 	if err != nil {
 		return fmt.Errorf("template render error: %w", err)
@@ -34,7 +34,6 @@ func ProvisionSpringService(req models.ServiceRequest) error {
 	}
 	sshUser := "ubuntu" // 혹은 상황에 맞는 사용자명
 	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.DeploymentID, req.ParentComponentId)
-
 	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath)
 	if err != nil {
 		return fmt.Errorf("run remote script error: %w", err)
