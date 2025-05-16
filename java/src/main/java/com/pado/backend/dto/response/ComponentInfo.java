@@ -2,11 +2,13 @@ package com.pado.backend.dto.response;
 
 import java.util.List;
 
+import com.pado.backend.global.type.ComponentStatus;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-// CHECKLIST: 컴포넌트 세부 타입 = 서비스 타입인가?
+// CHECKLIST: 컴포넌트 세부 타입 = RESOURCE일 경우 EC2, S3 등 SERVICE일 경우 Spring, MySQL 등
 // [ ]
 @Getter
 @NoArgsConstructor
@@ -17,7 +19,7 @@ public class ComponentInfo {
     private Long componentId;
 
     @Schema(description = "컴포넌트 타입", example = "SERVICE")
-    private String type;
+    private String type; // RESOURCE, SERVICE
 
     @Schema(description = "컴포넌트 세부 타입", example = "MySQL")
     private String subtype;
@@ -26,10 +28,10 @@ public class ComponentInfo {
     private String thumbnail;
 
     @Schema(description = "상태", example = "RUNNING")
-    private String status;
+    private ComponentStatus status;
 
     @Schema(description = "해당 컴포넌트가 소유한 서비스 목록")
-    private List<OwnedService> ownedServices;
+    private List<OwnedService> ownedServices; // 본인에게 포함된 서비스, 리소스일 경우 null
 
     @Schema(description = "컴포넌트 간 연결 정보 목록")
     private List<LinkInfo> links;
@@ -47,7 +49,7 @@ public class ComponentInfo {
         private String serviceType;
 
         @Schema(description = "서비스 상태", example = "RUNNING")
-        private String status;
+        private ComponentStatus status;
     }
 
     @Getter
