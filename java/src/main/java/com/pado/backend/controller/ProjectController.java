@@ -23,7 +23,8 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/projects")
+// [x] : EndPoint 변경
+@RequestMapping("user/{userId}/projects")
 @Tag(name = "Project", description = "프로젝트 생성/조회/삭제 API")
 public class ProjectController {
 
@@ -31,26 +32,33 @@ public class ProjectController {
 
     @PostMapping
     @Operation(summary = "프로젝트 생성")
-    public ResponseEntity<ProjectResponseDto> createProject(@RequestBody ProjectCreateRequestDto request) {
-        return ResponseEntity.ok(projectService.createProject(request));
+    public ResponseEntity<ProjectResponseDto> createProject(
+            @RequestBody ProjectCreateRequestDto request,
+            @PathVariable Long userId) {
+        return ResponseEntity.ok(projectService.createProject(request, userId));
     }
 
     @GetMapping
-    @Operation(summary = "전체 프로젝트 조회")
-    public ResponseEntity<List<ProjectResponseDto>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+    @Operation(summary = "프로젝트 전체 조회")
+    public ResponseEntity<List<ProjectResponseDto>> getAllProjects(
+            @PathVariable Long userId ) {
+        return ResponseEntity.ok(projectService.getAllProjects(userId));
     }
 
     @GetMapping("/{projectId}")
-    @Operation(summary = "프로젝트 상세 조회")
-    public ResponseEntity<ProjectDetailResponseDto> getProjectById(@PathVariable Long projectId) {
-        return ResponseEntity.ok(projectService.getProjectById(projectId));
+    @Operation(summary = "프로젝트 개별 조회")
+    public ResponseEntity<ProjectDetailResponseDto> getProjectById(
+        @PathVariable Long userId,    
+        @PathVariable Long projectId) {
+        return ResponseEntity.ok(projectService.getProjectById(userId, projectId));
     }
 
     @DeleteMapping("/{projectId}")
-    @Operation(summary = "프로젝트 삭제")
-    public ResponseEntity<DefaultResponseDto> deleteProject(@PathVariable Long projectId) {
-        projectService.deleteProject(projectId);
+    @Operation(summary = "프로젝트 개별 삭제")
+    public ResponseEntity<DefaultResponseDto> deleteProject(
+        @PathVariable Long userId,    
+        @PathVariable Long projectId) {
+        projectService.deleteProject(userId, projectId);
         return ResponseEntity.ok(new DefaultResponseDto("삭제 완료"));
     }
 } 

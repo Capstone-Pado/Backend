@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 public class Component {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long commponentId;
+    private Long componentId;
 
     private String componentName;
     private String type;

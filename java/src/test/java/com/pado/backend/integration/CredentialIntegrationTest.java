@@ -63,7 +63,7 @@ class CredentialIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("My AWS Credential"))
                 .andExpect(jsonPath("$.type").value("AWS"))
-                .andExpect(jsonPath("$.message").value("등록 완료"))
+                .andExpect(jsonPath("$.message").value("크리덴셜 등록 완료"))
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
