@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-export AWS_ACCESS_KEY_ID="{{ .S3.AWSAccessKey }}"
+export AWS_ACCESS_KEY_Id="{{ .S3.AWSAccessKey }}"
 export AWS_SECRET_ACCESS_KEY="{{ .S3.AWSSecretKey }}"
 
 # 1. Node 설치 (Ubuntu)

@@ -3,9 +3,11 @@
 set -e
 echo "[INFO] Spring App Init Script 시작"
 
+
+
 # 1. Docker & Git 설치
 sudo apt update -y
-sudo apt install -y docker.io git
+sudo apt install -y docker.io git 
 
 # Java 설치
 sudo apt install -y openjdk-{{ .JDKVersion }}-jdk
@@ -37,18 +39,19 @@ EOF
 
 # 5. Dockerfile 생성
 echo "[INFO] Dockerfile 생성"
+JAR_NAME=$(find build/libs -name '*.jar' | grep -v plain | tail -n 1)
 cat <<DOCKER > Dockerfile
 FROM openjdk:{{ .JDKVersion }}-jdk-slim
 WORKDIR /app
 COPY . .
 
 {{- if eq .BuildTool "gradle" }}
-CMD ["java", "-jar", "$(find build/libs -name '*.jar' | head -n 1)"]
+CMD ["java", "-jar", "$JAR_NAME"]
 {{- else if eq .BuildTool "maven" }}
-CMD ["java", "-jar", "$(find target -name '*.jar' | head -n 1)"]
+CMD ["java", "-jar", "$JAR_NAME"]
 {{- else }}
 # 기본은 gradle
-CMD ["java", "-jar", "$(find build/libs -name '*.jar' | head -n 1)"]
+CMD ["java", "-jar", "$JAR_NAME"]
 {{- end }}
 
 EXPOSE {{ .DockerPort }}

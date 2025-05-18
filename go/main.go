@@ -1,107 +1,220 @@
 package main
 
 import (
+	"bufio"
+	"context"
+	"fmt"
+	"io"
+	"log"
+	"net"
 	"os"
-	"pado/components"
 	"pado/models"
+	pb "pado/proto"
+	"pado/provision"
+	"strings"
+	"time"
+
+	"google.golang.org/grpc"
 )
 
-// ProvisionEC2가 정의된 패키지
+type server struct {
+	pb.UnimplementedProvisioningServiceServer
+}
+
+func (s *server) StartEC2Spring(ctx context.Context, req *pb.StartEC2SpringRequest) (*pb.ProvisionStartResponse, error) {
+	// EC2 인스턴스 시작 로직 구현
+	if req == nil || req.EC2 == nil || req.Spring == nil {
+		return &pb.ProvisionStartResponse{
+			Status: "Error",
+			Data:   map[string]string{"message": "invalid request: EC2 or Spring field is nil"},
+		}, nil
+	}
+	EC2ProvisionRequest := models.EC2ProvisionRequest{
+		DeploymentId: req.DeploymentId,
+		ComponentId:  req.EC2.ComponentId,
+		InstanceName: req.EC2.InstanceName,
+		InstanceType: req.EC2.InstanceType,
+		Region:       req.EC2.Region,
+		AMI:          req.EC2.AMI,
+		OpenPorts:    req.EC2.OpenPorts,
+		AWSAccessKey: req.EC2.AWSAccessKey,
+		AWSSecretKey: req.EC2.AWSSecretKey,
+	}
+	SpringProvisionRequest := models.ServiceRequest{
+		DeploymentId:      req.DeploymentId,
+		ServiceType:       "spring",
+		ComponentId:       req.Spring.ComponentId,
+		GitRepo:           req.Spring.GitRepo,
+		DockerPort:        req.Spring.DockerPort,
+		NginxPort:         req.Spring.NginxPort,
+		BuildTool:         req.Spring.BuildTool,
+		JDKVersion:        req.Spring.JDKVersion,
+		Env:               req.Spring.Env,
+		ParentComponentId: req.Spring.ParentComponentId,
+	}
+
+	go func() {
+		err := provision.EC2SpringProvision(EC2ProvisionRequest, SpringProvisionRequest)
+		statusPath := fmt.Sprintf("workspaces/%s/status.log", req.DeploymentId)
+		var status string
+		if err != nil {
+			status = "FAILED"
+		} else {
+			status = "SUCCEEDED"
+		}
+		_ = os.WriteFile(statusPath, []byte(status), 0644)
+	}()
+
+	return &pb.ProvisionStartResponse{
+		Status: "STARTED",
+		Data:   map[string]string{"message": "Provisioning started asynchronously"},
+	}, nil
+}
+
+func (s *server) StartEC2MySQL(ctx context.Context, req *pb.StartEC2MySQLRequest) (*pb.ProvisionStartResponse, error) {
+	// EC2 인스턴스 시작 로직 구현
+	if req == nil || req.EC2 == nil || req.MySQL == nil {
+		return &pb.ProvisionStartResponse{
+			Status: "Error",
+			Data:   map[string]string{"message": "invalid request: EC2 or MySQL field is nil"},
+		}, nil
+	}
+	EC2ProvisionRequest := models.EC2ProvisionRequest{
+		DeploymentId: req.DeploymentId,
+		ComponentId:  req.EC2.ComponentId,
+		InstanceName: req.EC2.InstanceName,
+		InstanceType: req.EC2.InstanceType,
+		Region:       req.EC2.Region,
+		AMI:          req.EC2.AMI,
+		OpenPorts:    req.EC2.OpenPorts,
+		AWSAccessKey: req.EC2.AWSAccessKey,
+		AWSSecretKey: req.EC2.AWSSecretKey,
+	}
+	MySQLProvisionRequest := models.ServiceRequest{
+		DeploymentId:      req.DeploymentId,
+		ServiceType:       "mysql",
+		ComponentId:       req.MySQL.ComponentId,
+		ParentComponentId: req.MySQL.ParentComponentId,
+		DBConfig: &models.MySQLConfig{
+			MySQLRootPassword: req.MySQL.MySQLRootPassword,
+			MySQLDatabase:     req.MySQL.MySQLDatabase,
+			MySQLUser:         req.MySQL.MySQLUser,
+			MySQLPassword:     req.MySQL.MySQLPassword,
+			Port:              req.MySQL.Port,
+		},
+	}
+
+	go func() {
+		err := provision.EC2MySQLProvision(EC2ProvisionRequest, MySQLProvisionRequest)
+		statusPath := fmt.Sprintf("workspaces/%s/status.log", req.DeploymentId)
+		var status string
+		if err != nil {
+			status = "FAILED"
+		} else {
+			status = "SUCCEEDED"
+		}
+		_ = os.WriteFile(statusPath, []byte(status), 0644)
+	}()
+
+	return &pb.ProvisionStartResponse{
+		Status: "STARTED",
+		Data:   map[string]string{"message": "Provisioning started asynchronously"},
+	}, nil
+}
+
+func (s *server) StartS3React(ctx context.Context, req *pb.StartS3ReactRequest) (*pb.ProvisionStartResponse, error) {
+	// S3 React 시작 로직 구현
+	if req == nil || req.S3 == nil || req.React == nil {
+		return &pb.ProvisionStartResponse{
+			Status: "Error",
+			Data:   map[string]string{"message": "invalid request: S3 or React field is nil"},
+		}, nil
+	}
+	S3ProvisionRequest := models.S3ProvisionRequest{
+		DeploymentId: req.DeploymentId,
+		ComponentId:  req.S3.ComponentId,
+		BucketName:   req.S3.BucketName,
+		Region:       req.S3.Region,
+		AWSAccessKey: req.S3.AWSAccessKey,
+		AWSSecretKey: req.S3.AWSSecretKey,
+	}
+	ReactProvisionRequest := models.ServiceRequest{
+		DeploymentId:      req.DeploymentId,
+		ServiceType:       "react",
+		ComponentId:       req.React.ComponentId,
+		GitRepo:           req.React.GitRepo,
+		ParentComponentId: req.React.ParentComponentId,
+	}
+
+	go func() {
+		err := provision.S3ReactProvision(S3ProvisionRequest, ReactProvisionRequest)
+		statusPath := fmt.Sprintf("workspaces/%s/status.log", req.DeploymentId)
+		var status string
+		if err != nil {
+			status = "FAILED"
+		} else {
+			status = "SUCCEEDED"
+		}
+		_ = os.WriteFile(statusPath, []byte(status), 0644)
+	}()
+
+	return &pb.ProvisionStartResponse{
+		Status: "STARTED",
+		Data:   map[string]string{"message": "Provisioning started asynchronously"},
+	}, nil
+}
+
+func (s *server) StreamProvisionLogs(req *pb.ProvisionLogRequest, stream pb.ProvisioningService_StreamProvisionLogsServer) error {
+	if req == nil || req.DeploymentId == "" || req.ComponentId == "" {
+		return fmt.Errorf("invalid request: DeploymentId or ComponentId is empty")
+	}
+
+	// 로그 파일 경로 지정
+	logPath := fmt.Sprintf("workspaces/%s/%s/provision.log", req.DeploymentId, req.ComponentId)
+
+	// 로그 파일 열기 (실시간 tail 처리를 위해 Seek)
+	file, err := os.Open(logPath)
+	if err != nil {
+		return fmt.Errorf("failed to open log file: %w", err)
+	}
+	defer file.Close()
+
+	// 파일 끝으로 이동
+	reader := bufio.NewReader(file)
+	idleStart := time.Now()
+	for {
+		// 한 줄씩 읽기
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				if time.Since(idleStart) > time.Minute {
+					return nil
+				} else {
+					idleStart = time.Now()
+				}
+				time.Sleep(500 * time.Millisecond)
+				continue
+			}
+			return fmt.Errorf("error reading log file: %w", err)
+		}
+
+		// 클라이언트로 전송
+		if err := stream.Send(&pb.ProvisionLog{
+			ComponentId: req.ComponentId,
+			LogLine:     strings.TrimSpace(line),
+		}); err != nil {
+			return fmt.Errorf("failed to send log line: %w", err)
+		}
+	}
+}
 
 func main() {
-	// 예제 EC2ProvisionRequest
-	// req := models.EC2ProvisionRequest{
-	// 	InstanceName: "crew-prod-ec2-user-api",
-	// 	DeploymentID: "crew-prod",
-	// 	ComponentId:  "ec2-user-api",
-	//	Resion:		  "ap-northeast-2"
-	// 	AMI:          "ami-0c9c942bd7bf113a2", // Ubuntu 22.04 in ap-northeast-2
-	// 	InstanceType: "t3.micro",
-	// 	OpenPorts:    []int{22, 80, 443, 8080},
-	// 	AWSAccessKey: os.Getenv("AWS_ACCESS_KEY"),
-	// 	AWSSecretKey: os.Getenv("AWS_SECRET_KEY"),
-	// }
-
-	// // JSON 출력 (디버깅 용도)
-	// if b, err := json.MarshalIndent(req, "", "  "); err == nil {
-	// 	fmt.Println("Request:")
-	// 	fmt.Println(string(b))
-	// }
-
-	// // EC2 프로비저닝
-	// if err := components.ProvisionEC2(req); err != nil {
-	// 	log.Fatalf("ProvisionEC2 failed: %v", err)
-	// }
-
-	// req_mysql := models.ServiceRequest{
-	// 	DeploymentID:      "crew-prod",
-	// 	ServiceType:       "mysql",
-	// 	ComponentId:       "mysql-user-db",
-	// 	ParentComponentId: "ec2-user-api", // EC2 컴포넌트 ID
-
-	// 	DBConfig: &models.MySQLConfig{
-	// 		MySQLRootPassword: "root1234!",
-	// 		MySQLDatabase:     "testdb",
-	// 		MySQLUser:         "testuser",
-	// 		MySQLPassword:     "testpass",
-	// 		Port:              3306,
-	// 	},
-	// }
-
-	// if err := components.ProvisionMySQLService(req_mysql); err != nil {
-	// 	log.Fatalf("ProvisionMySQLService failed: %v", err)
-	// }
-
-	//Spring 서비스 요청 정의
-	// req_svc := models.ServiceRequest{
-	// 	DeploymentID:      "crew-prod",
-	// 	ServiceType:       "spring",
-	// 	ComponentId:       "spring-user-api",
-	// 	ParentComponentId: "ec2-user-api", // 이 EC2 위에 Spring 설치
-
-	// 	GitRepo:    "https://github.com/Capstone-Pado/Spring-Test",
-	// 	DockerPort: 8080,
-	// 	NginxPort:  80,
-	// 	BuildTool:  "gradle",
-	// 	JDKVersion: "17",
-	// 	Env: map[string]string{
-	// 		"EXAMPLE_ENV": "test",
-	// 	},
-	// }
-
-	// fmt.Println("✅ EC2 provision complete.")
-
-	// if err := components.ProvisionSpringService(req_svc); err != nil {
-	// 	log.Fatalf("ProvisionSpringService failed: %v", err)
-	// }
-
-	// fmt.Println("✅ Spring service provisioned successfully.")
-
-	req_s3 := models.S3ProvisionRequest{
-		DeploymentID: "crew-prod",
-		ComponentId:  "crew-s3-assets",
-		BucketName:   "crew-s3-assets-test-2025",
-		Region:       "ap-northeast-2",
-		AWSAccessKey: os.Getenv("AWS_ACCESS_KEY"),
-		AWSSecretKey: os.Getenv("AWS_SECRET_KEY"),
-	}
-	components.DestroyS3("crew-prod", "crew-s3-assets")
-	components.ProvisionS3(req_s3)
-
-	req_react := models.ServiceRequest{
-		DeploymentID:      "crew-prod",
-		ServiceType:       "react",
-		ComponentId:       "react-user-web",
-		GitRepo:           "https://github.com/Capstone-Pado/React-test",
-		ParentComponentId: "crew-s3-assets",
-	}
-
-	req_Nodebuild := models.NodeBuildSpecTemplateData{
-		S3:      req_s3,
-		Service: req_react,
-	}
-	err := components.ProvisionReactService(req_Nodebuild)
+	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
-		panic(err)
+		log.Fatalf("failed to listen: %v", err)
 	}
+	grpcServer := grpc.NewServer()
+	pb.RegisterProvisioningServiceServer(grpcServer, &server{})
+	log.Println("gRPC server listening on port 50051")
+	grpcServer.Serve(lis)
 }

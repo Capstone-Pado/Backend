@@ -9,7 +9,7 @@ import (
 )
 
 func ProvisionSpringService(req models.ServiceRequest) error {
-	basePath := "workspaces/" + req.DeploymentID
+	basePath := "workspaces/" + req.DeploymentId
 	info, err := os.Stat(basePath)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("resource is not exist: %w", err)
@@ -21,20 +21,19 @@ func ProvisionSpringService(req models.ServiceRequest) error {
 	tplPath := "templates/service/spring/init.sh.tpl"
 	scriptPath := fmt.Sprintf("%s/%s", basePath, req.ComponentId)
 	_ = os.MkdirAll(scriptPath, 0755)
-	shPath := filepath.Join(basePath, "init.sh")
+	shPath := filepath.Join(scriptPath, "init.sh")
 	err = utils.RenderTemplate(tplPath, shPath, req)
 	if err != nil {
 		return fmt.Errorf("template render error: %w", err)
 	}
 
 	// 2. 쉘 스크립트 실행
-	ip, err := utils.GetResourceIP(req.DeploymentID, req.ParentComponentId)
+	ip, err := utils.GetResourceIP(req.DeploymentId, req.ParentComponentId)
 	if err != nil {
 		return fmt.Errorf("get resource ip error: %w", err)
 	}
 	sshUser := "ubuntu" // 혹은 상황에 맞는 사용자명
-	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.DeploymentID, req.ParentComponentId)
-
+	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.DeploymentId, req.ParentComponentId)
 	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath)
 	if err != nil {
 		return fmt.Errorf("run remote script error: %w", err)

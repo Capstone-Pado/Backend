@@ -25,3 +25,5 @@ Thumbs.db
 
 **/workspaces
 .env
+.DS_Store
+

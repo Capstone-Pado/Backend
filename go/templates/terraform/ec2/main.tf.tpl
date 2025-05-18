@@ -15,14 +15,23 @@ resource "aws_instance" "app" {
   ami           = "{{ .AMI }}"
   instance_type = "{{ .InstanceType }}"
   key_name      = "{{ .KeyName }}"
+
+  user_data = <<-EOF
+              #!/bin/bash
+              dd if=/dev/zero of=/swapfile bs=128M count=16
+              chmod 600 /swapfile
+              mkswap /swapfile
+              swapon /swapfile
+              echo "/swapfile none swap sw 0 0" >> /etc/fstab
+              EOF
   tags = {
     Name = "{{ .InstanceName }}"
   }
-  vpc_security_group_ids = [aws_security_group.app_sg.id]
+  vpc_security_group_ids = [aws_security_group.{{ .ComponentId }}-sg.id]
 }
 
-resource "aws_security_group" "app_sg" {
-  name = "app_sg"
+resource "aws_security_group" "{{ .ComponentId }}-sg" {
+  name = "{{ .ComponentId }}-sg"
 
   dynamic "ingress" {
     for_each = toset([
