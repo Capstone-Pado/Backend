@@ -199,7 +199,7 @@ func (x *S3Request) GetComponentId() string {
 
 type GitCredential struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	ID            string                 `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	Id            string                 `protobuf:"bytes,1,opt,name=Id,proto3" json:"Id,omitempty"`
 	Key           string                 `protobuf:"bytes,2,opt,name=Key,proto3" json:"Key,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -235,9 +235,9 @@ func (*GitCredential) Descriptor() ([]byte, []int) {
 	return file_provision_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *GitCredential) GetID() string {
+func (x *GitCredential) GetId() string {
 	if x != nil {
-		return x.ID
+		return x.Id
 	}
 	return ""
 }
@@ -521,7 +521,7 @@ type StartEC2SpringRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EC2           *EC2Request            `protobuf:"bytes,1,opt,name=EC2,proto3" json:"EC2,omitempty"`
 	Spring        *SpringRequest         `protobuf:"bytes,2,opt,name=Spring,proto3" json:"Spring,omitempty"`
-	DeploymentID  string                 `protobuf:"bytes,3,opt,name=DeploymentID,proto3" json:"DeploymentID,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,3,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -570,9 +570,9 @@ func (x *StartEC2SpringRequest) GetSpring() *SpringRequest {
 	return nil
 }
 
-func (x *StartEC2SpringRequest) GetDeploymentID() string {
+func (x *StartEC2SpringRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.DeploymentID
+		return x.DeploymentId
 	}
 	return ""
 }
@@ -581,7 +581,7 @@ type StartS3ReactRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	S3            *S3Request             `protobuf:"bytes,1,opt,name=S3,proto3" json:"S3,omitempty"`
 	React         *ReactRequest          `protobuf:"bytes,2,opt,name=React,proto3" json:"React,omitempty"`
-	DeploymentID  string                 `protobuf:"bytes,3,opt,name=DeploymentID,proto3" json:"DeploymentID,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,3,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
 	ComponentId   string                 `protobuf:"bytes,4,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -631,9 +631,9 @@ func (x *StartS3ReactRequest) GetReact() *ReactRequest {
 	return nil
 }
 
-func (x *StartS3ReactRequest) GetDeploymentID() string {
+func (x *StartS3ReactRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.DeploymentID
+		return x.DeploymentId
 	}
 	return ""
 }
@@ -649,7 +649,7 @@ type StartEC2MySQLRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EC2           *EC2Request            `protobuf:"bytes,1,opt,name=EC2,proto3" json:"EC2,omitempty"`
 	MySQL         *MySQLRequest          `protobuf:"bytes,2,opt,name=MySQL,proto3" json:"MySQL,omitempty"`
-	DeploymentID  string                 `protobuf:"bytes,3,opt,name=DeploymentID,proto3" json:"DeploymentID,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,3,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
 	ComponentId   string                 `protobuf:"bytes,4,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -699,9 +699,9 @@ func (x *StartEC2MySQLRequest) GetMySQL() *MySQLRequest {
 	return nil
 }
 
-func (x *StartEC2MySQLRequest) GetDeploymentID() string {
+func (x *StartEC2MySQLRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.DeploymentID
+		return x.DeploymentId
 	}
 	return ""
 }
@@ -767,7 +767,8 @@ func (x *ProvisionStartResponse) GetData() map[string]string {
 
 type ProvisionLogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DeploymentID  string                 `protobuf:"bytes,1,opt,name=DeploymentID,proto3" json:"DeploymentID,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,1,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
+	ComponentId   string                 `protobuf:"bytes,2,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -802,16 +803,23 @@ func (*ProvisionLogRequest) Descriptor() ([]byte, []int) {
 	return file_provision_proto_rawDescGZIP(), []int{10}
 }
 
-func (x *ProvisionLogRequest) GetDeploymentID() string {
+func (x *ProvisionLogRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.DeploymentID
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *ProvisionLogRequest) GetComponentId() string {
+	if x != nil {
+		return x.ComponentId
 	}
 	return ""
 }
 
 type ComponentLogRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DeploymentID  string                 `protobuf:"bytes,1,opt,name=DeploymentID,proto3" json:"DeploymentID,omitempty"`
+	DeploymentId  string                 `protobuf:"bytes,1,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
 	ComponentId   string                 `protobuf:"bytes,2,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -847,9 +855,9 @@ func (*ComponentLogRequest) Descriptor() ([]byte, []int) {
 	return file_provision_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ComponentLogRequest) GetDeploymentID() string {
+func (x *ComponentLogRequest) GetDeploymentId() string {
 	if x != nil {
-		return x.DeploymentID
+		return x.DeploymentId
 	}
 	return ""
 }
@@ -937,7 +945,7 @@ const file_provision_proto_rawDesc = "" +
 	"\fAWSSecretKey\x18\x04 \x01(\tR\fAWSSecretKey\x12 \n" +
 	"\vComponentId\x18\x05 \x01(\tR\vComponentId\"1\n" +
 	"\rGitCredential\x12\x0e\n" +
-	"\x02ID\x18\x01 \x01(\tR\x02ID\x12\x10\n" +
+	"\x02Id\x18\x01 \x01(\tR\x02Id\x12\x10\n" +
 	"\x03Key\x18\x02 \x01(\tR\x03Key\"\xb8\x01\n" +
 	"\fReactRequest\x12,\n" +
 	"\x11ParentComponentId\x18\x01 \x01(\tR\x11ParentComponentId\x12>\n" +
@@ -972,27 +980,28 @@ const file_provision_proto_rawDesc = "" +
 	"\x15StartEC2SpringRequest\x12'\n" +
 	"\x03EC2\x18\x01 \x01(\v2\x15.provision.EC2RequestR\x03EC2\x120\n" +
 	"\x06Spring\x18\x02 \x01(\v2\x18.provision.SpringRequestR\x06Spring\x12\"\n" +
-	"\fDeploymentID\x18\x03 \x01(\tR\fDeploymentID\"\xb0\x01\n" +
+	"\fDeploymentId\x18\x03 \x01(\tR\fDeploymentId\"\xb0\x01\n" +
 	"\x13StartS3ReactRequest\x12$\n" +
 	"\x02S3\x18\x01 \x01(\v2\x14.provision.S3RequestR\x02S3\x12-\n" +
 	"\x05React\x18\x02 \x01(\v2\x17.provision.ReactRequestR\x05React\x12\"\n" +
-	"\fDeploymentID\x18\x03 \x01(\tR\fDeploymentID\x12 \n" +
+	"\fDeploymentId\x18\x03 \x01(\tR\fDeploymentId\x12 \n" +
 	"\vComponentId\x18\x04 \x01(\tR\vComponentId\"\xb4\x01\n" +
 	"\x14StartEC2MySQLRequest\x12'\n" +
 	"\x03EC2\x18\x01 \x01(\v2\x15.provision.EC2RequestR\x03EC2\x12-\n" +
 	"\x05MySQL\x18\x02 \x01(\v2\x17.provision.MySQLRequestR\x05MySQL\x12\"\n" +
-	"\fDeploymentID\x18\x03 \x01(\tR\fDeploymentID\x12 \n" +
+	"\fDeploymentId\x18\x03 \x01(\tR\fDeploymentId\x12 \n" +
 	"\vComponentId\x18\x04 \x01(\tR\vComponentId\"\xaa\x01\n" +
 	"\x16ProvisionStartResponse\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\tR\x06status\x12?\n" +
 	"\x04data\x18\x02 \x03(\v2+.provision.ProvisionStartResponse.DataEntryR\x04data\x1a7\n" +
 	"\tDataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"9\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"[\n" +
 	"\x13ProvisionLogRequest\x12\"\n" +
-	"\fDeploymentID\x18\x01 \x01(\tR\fDeploymentID\"[\n" +
+	"\fDeploymentId\x18\x01 \x01(\tR\fDeploymentId\x12 \n" +
+	"\vComponentId\x18\x02 \x01(\tR\vComponentId\"[\n" +
 	"\x13ComponentLogRequest\x12\"\n" +
-	"\fDeploymentID\x18\x01 \x01(\tR\fDeploymentID\x12 \n" +
+	"\fDeploymentId\x18\x01 \x01(\tR\fDeploymentId\x12 \n" +
 	"\vComponentId\x18\x02 \x01(\tR\vComponentId\"K\n" +
 	"\fProvisionLog\x12 \n" +
 	"\vComponentId\x18\x01 \x01(\tR\vComponentId\x12\x19\n" +

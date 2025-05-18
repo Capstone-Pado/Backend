@@ -9,8 +9,8 @@ resource "aws_s3_bucket" "{{ .ComponentId }}" {
   force_destroy = true
 
   tags = {
-    DeploymentID = "{{ .DeploymentID }}"
-    ComponentID  = "{{ .ComponentId }}"
+    DeploymentId = "{{ .DeploymentId }}"
+    ComponentId  = "{{ .ComponentId }}"
   }
 }
 

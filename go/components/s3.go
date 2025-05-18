@@ -9,7 +9,7 @@ import (
 )
 
 func ProvisionS3(req models.S3ProvisionRequest) error {
-	basePath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentID, req.ComponentId)
+	basePath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentId, req.ComponentId)
 	_ = os.MkdirAll(basePath, 0755)
 
 	// 1. 템플릿 렌더링
@@ -28,8 +28,8 @@ func ProvisionS3(req models.S3ProvisionRequest) error {
 	return nil
 }
 
-func DestroyS3(deploymentID, componentID string) error {
-	basePath := fmt.Sprintf("workspaces/%s/%s", deploymentID, componentID)
+func DestroyS3(deploymentId, componentId string) error {
+	basePath := fmt.Sprintf("workspaces/%s/%s", deploymentId, componentId)
 	if err := runTerraformCmd(basePath, "destroy", "-auto-approve"); err != nil {
 		return fmt.Errorf("terraform destroy error: %w", err)
 	}

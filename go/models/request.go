@@ -1,7 +1,7 @@
 package models
 
 type EC2ProvisionRequest struct {
-	DeploymentID string  `json:"user_id"`
+	DeploymentId string  `json:"user_id"`
 	ComponentId  string  `json:"component_id"`
 	InstanceName string  `json:"instance_name"` // EC2 인스턴스 이름
 	InstanceType string  `json:"instance_type"`
@@ -20,7 +20,7 @@ type NodeBuildSpecTemplateData struct {
 }
 
 type S3ProvisionRequest struct {
-	DeploymentID string `json:"user_id"`
+	DeploymentId string `json:"user_id"`
 	ComponentId  string `json:"component_id"`
 	BucketName   string `json:"bucket_name"` // S3 버킷 이름
 	Region       string `json:"region"`      // S3 버킷 리전
@@ -29,10 +29,10 @@ type S3ProvisionRequest struct {
 }
 
 type ServiceRequest struct {
-	DeploymentID      string `json:"deployment_id"`
+	DeploymentId      string `json:"deployment_id"`
 	ServiceType       string `json:"service_type"` // "spring", "mysql", etc.
 	ComponentId       string `json:"component_id"`
-	ParentComponentId string `json:"parent_component_id"` // 부모 컴포넌트 ID (예: EC2 ID)
+	ParentComponentId string `json:"parent_component_id"` // 부모 컴포넌트 Id (예: EC2 Id)
 
 	// Spring 전용
 	GitRepo    string            `json:"git_repo"`

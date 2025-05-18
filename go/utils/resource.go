@@ -16,9 +16,9 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func GetResourceIP(deploymentID, componentID string) (string, error) {
+func GetResourceIP(deploymentId, componentId string) (string, error) {
 	// Terraform 작업 디렉토리
-	tfDir := filepath.Join("workspaces", deploymentID, componentID)
+	tfDir := filepath.Join("workspaces", deploymentId, componentId)
 
 	// terraform output -json 실행
 	cmd := exec.Command("terraform", "output", "-json")
@@ -69,9 +69,9 @@ func GenerateRSAKeyPair() (publicKey string, privateKey []byte, err error) {
 	return pubStr, privPEM, nil
 }
 
-func GetS3Domain(deploymentID, componentID string) (string, error) {
+func GetS3Domain(deploymentId, componentId string) (string, error) {
 	// Terraform 작업 디렉토리
-	tfDir := filepath.Join("workspaces", deploymentID, componentID)
+	tfDir := filepath.Join("workspaces", deploymentId, componentId)
 
 	// terraform output -json 실행
 	cmd := exec.Command("terraform", "output", "-json")

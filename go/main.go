@@ -1,13 +1,18 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
+	"os"
 	"pado/models"
 	pb "pado/proto"
 	"pado/provision"
+	"strings"
+	"time"
 
 	"google.golang.org/grpc"
 )
@@ -25,7 +30,7 @@ func (s *server) StartEC2Spring(ctx context.Context, req *pb.StartEC2SpringReque
 		}, nil
 	}
 	EC2ProvisionRequest := models.EC2ProvisionRequest{
-		DeploymentID: req.DeploymentID,
+		DeploymentId: req.DeploymentId,
 		ComponentId:  req.EC2.ComponentId,
 		InstanceName: req.EC2.InstanceName,
 		InstanceType: req.EC2.InstanceType,
@@ -36,7 +41,7 @@ func (s *server) StartEC2Spring(ctx context.Context, req *pb.StartEC2SpringReque
 		AWSSecretKey: req.EC2.AWSSecretKey,
 	}
 	SpringProvisionRequest := models.ServiceRequest{
-		DeploymentID:      req.DeploymentID,
+		DeploymentId:      req.DeploymentId,
 		ServiceType:       "spring",
 		ComponentId:       req.Spring.ComponentId,
 		GitRepo:           req.Spring.GitRepo,
@@ -50,11 +55,14 @@ func (s *server) StartEC2Spring(ctx context.Context, req *pb.StartEC2SpringReque
 
 	go func() {
 		err := provision.EC2SpringProvision(EC2ProvisionRequest, SpringProvisionRequest)
+		statusPath := fmt.Sprintf("workspaces/%s/status.log", req.DeploymentId)
+		var status string
 		if err != nil {
-			fmt.Printf("Provisioning failed: %v\n", err)
+			status = "FAILED"
 		} else {
-			// 성공 시 상태 업데이트
+			status = "SUCCEEDED"
 		}
+		_ = os.WriteFile(statusPath, []byte(status), 0644)
 	}()
 
 	return &pb.ProvisionStartResponse{
@@ -72,7 +80,7 @@ func (s *server) StartEC2MySQL(ctx context.Context, req *pb.StartEC2MySQLRequest
 		}, nil
 	}
 	EC2ProvisionRequest := models.EC2ProvisionRequest{
-		DeploymentID: req.DeploymentID,
+		DeploymentId: req.DeploymentId,
 		ComponentId:  req.EC2.ComponentId,
 		InstanceName: req.EC2.InstanceName,
 		InstanceType: req.EC2.InstanceType,
@@ -83,7 +91,7 @@ func (s *server) StartEC2MySQL(ctx context.Context, req *pb.StartEC2MySQLRequest
 		AWSSecretKey: req.EC2.AWSSecretKey,
 	}
 	MySQLProvisionRequest := models.ServiceRequest{
-		DeploymentID:      req.DeploymentID,
+		DeploymentId:      req.DeploymentId,
 		ServiceType:       "mysql",
 		ComponentId:       req.MySQL.ComponentId,
 		ParentComponentId: req.MySQL.ParentComponentId,
@@ -98,11 +106,14 @@ func (s *server) StartEC2MySQL(ctx context.Context, req *pb.StartEC2MySQLRequest
 
 	go func() {
 		err := provision.EC2MySQLProvision(EC2ProvisionRequest, MySQLProvisionRequest)
+		statusPath := fmt.Sprintf("workspaces/%s/status.log", req.DeploymentId)
+		var status string
 		if err != nil {
-			fmt.Printf("Provisioning failed: %v\n", err)
+			status = "FAILED"
 		} else {
-			// 성공 시 상태 업데이트
+			status = "SUCCEEDED"
 		}
+		_ = os.WriteFile(statusPath, []byte(status), 0644)
 	}()
 
 	return &pb.ProvisionStartResponse{
@@ -120,7 +131,7 @@ func (s *server) StartS3React(ctx context.Context, req *pb.StartS3ReactRequest) 
 		}, nil
 	}
 	S3ProvisionRequest := models.S3ProvisionRequest{
-		DeploymentID: req.DeploymentID,
+		DeploymentId: req.DeploymentId,
 		ComponentId:  req.S3.ComponentId,
 		BucketName:   req.S3.BucketName,
 		Region:       req.S3.Region,
@@ -128,7 +139,7 @@ func (s *server) StartS3React(ctx context.Context, req *pb.StartS3ReactRequest) 
 		AWSSecretKey: req.S3.AWSSecretKey,
 	}
 	ReactProvisionRequest := models.ServiceRequest{
-		DeploymentID:      req.DeploymentID,
+		DeploymentId:      req.DeploymentId,
 		ServiceType:       "react",
 		ComponentId:       req.React.ComponentId,
 		GitRepo:           req.React.GitRepo,
@@ -137,17 +148,64 @@ func (s *server) StartS3React(ctx context.Context, req *pb.StartS3ReactRequest) 
 
 	go func() {
 		err := provision.S3ReactProvision(S3ProvisionRequest, ReactProvisionRequest)
+		statusPath := fmt.Sprintf("workspaces/%s/status.log", req.DeploymentId)
+		var status string
 		if err != nil {
-			fmt.Printf("Provisioning failed: %v\n", err)
+			status = "FAILED"
 		} else {
-			// 성공 시 상태 업데이트
+			status = "SUCCEEDED"
 		}
+		_ = os.WriteFile(statusPath, []byte(status), 0644)
 	}()
 
 	return &pb.ProvisionStartResponse{
 		Status: "STARTED",
 		Data:   map[string]string{"message": "Provisioning started asynchronously"},
 	}, nil
+}
+
+func (s *server) StreamProvisionLogs(req *pb.ProvisionLogRequest, stream pb.ProvisioningService_StreamProvisionLogsServer) error {
+	if req == nil || req.DeploymentId == "" || req.ComponentId == "" {
+		return fmt.Errorf("invalid request: DeploymentId or ComponentId is empty")
+	}
+
+	// 로그 파일 경로 지정
+	logPath := fmt.Sprintf("workspaces/%s/%s/provision.log", req.DeploymentId, req.ComponentId)
+
+	// 로그 파일 열기 (실시간 tail 처리를 위해 Seek)
+	file, err := os.Open(logPath)
+	if err != nil {
+		return fmt.Errorf("failed to open log file: %w", err)
+	}
+	defer file.Close()
+
+	// 파일 끝으로 이동
+	reader := bufio.NewReader(file)
+	idleStart := time.Now()
+	for {
+		// 한 줄씩 읽기
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err == io.EOF {
+				if time.Since(idleStart) > time.Minute {
+					return nil
+				} else {
+					idleStart = time.Now()
+				}
+				time.Sleep(500 * time.Millisecond)
+				continue
+			}
+			return fmt.Errorf("error reading log file: %w", err)
+		}
+
+		// 클라이언트로 전송
+		if err := stream.Send(&pb.ProvisionLog{
+			ComponentId: req.ComponentId,
+			LogLine:     strings.TrimSpace(line),
+		}); err != nil {
+			return fmt.Errorf("failed to send log line: %w", err)
+		}
+	}
 }
 
 func main() {

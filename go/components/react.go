@@ -11,7 +11,7 @@ import (
 
 func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 	// 0. Deploy 디렉토리 확인
-	basePath := "workspaces/" + req.S3.DeploymentID
+	basePath := "workspaces/" + req.S3.DeploymentId
 	info, err := os.Stat(basePath)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("resource is not exist: %w", err)
@@ -20,7 +20,7 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 		return fmt.Errorf("deploy is not a directory: %w", err)
 	}
 	// 0-1. 서비스 디렉토리 생성
-	basePath = "workspaces/" + req.S3.DeploymentID + "/" + req.Service.ComponentId
+	basePath = "workspaces/" + req.S3.DeploymentId + "/" + req.Service.ComponentId
 	_ = os.MkdirAll(basePath, 0755)
 
 	// 0-2. 키 쌍 자동 생성
@@ -62,7 +62,7 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 	}
 
 	// 4. 쉘 스크립트 실행
-	ip, err := utils.GetResourceIP(req.S3.DeploymentID, req.Service.ComponentId)
+	ip, err := utils.GetResourceIP(req.S3.DeploymentId, req.Service.ComponentId)
 	if err != nil {
 		return fmt.Errorf("get resource ip error: %w", err)
 	}
@@ -71,13 +71,13 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 		return fmt.Errorf("wait for ssh error: %w", err)
 	}
 	sshUser := "ubuntu" // 혹은 상황에 맞는 사용자명
-	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.S3.DeploymentID, req.Service.ComponentId)
+	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.S3.DeploymentId, req.Service.ComponentId)
 
 	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath)
 	if err != nil {
 		return fmt.Errorf("run remote script error: %w", err)
 	}
 	// 5. 임시 EC2 Destroy
-	DestroyEC2(req.S3.DeploymentID, req.Service.ComponentId)
+	DestroyEC2(req.S3.DeploymentId, req.Service.ComponentId)
 	return nil
 }

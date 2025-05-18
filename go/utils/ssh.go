@@ -4,10 +4,17 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 func RunRemoteScript(ip, user, keyPath, localScriptPath string) error {
 	remotePath := "/home/" + user + "/init.sh"
+	logFilePath := filepath.Join(filepath.Dir(localScriptPath), "provision.log")
+	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	defer logFile.Close()
 
 	// 1. scp로 복사
 	scpCmd := exec.Command("scp",
@@ -16,8 +23,8 @@ func RunRemoteScript(ip, user, keyPath, localScriptPath string) error {
 		localScriptPath,
 		fmt.Sprintf("%s@%s:%s", user, ip, remotePath),
 	)
-	scpCmd.Stdout = os.Stdout
-	scpCmd.Stderr = os.Stderr
+	scpCmd.Stdout = logFile
+	scpCmd.Stderr = logFile
 	if err := scpCmd.Run(); err != nil {
 		return fmt.Errorf("scp error: %w", err)
 	}
@@ -29,8 +36,8 @@ func RunRemoteScript(ip, user, keyPath, localScriptPath string) error {
 		fmt.Sprintf("%s@%s", user, ip),
 		fmt.Sprintf("chmod +x %s && sudo bash %s", remotePath, remotePath),
 	)
-	sshCmd.Stdout = os.Stdout
-	sshCmd.Stderr = os.Stderr
+	sshCmd.Stdout = logFile
+	sshCmd.Stderr = logFile
 	if err := sshCmd.Run(); err != nil {
 		return fmt.Errorf("ssh exec error: %w", err)
 	}

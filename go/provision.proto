@@ -33,7 +33,7 @@ message S3Request {
 }
 
 message GitCredential {
-    string ID = 1;
+    string Id = 1;
     string Key = 2;
 }
 
@@ -69,20 +69,20 @@ message SpringRequest {
 message StartEC2SpringRequest {
     EC2Request EC2 = 1;
     SpringRequest Spring = 2;
-    string DeploymentID = 3;
+    string DeploymentId = 3;
 }
 
 message StartS3ReactRequest {
     S3Request S3 = 1;
     ReactRequest React = 2;
-    string DeploymentID = 3;
+    string DeploymentId = 3;
     string ComponentId = 4;
 }
 
 message StartEC2MySQLRequest {
     EC2Request EC2 = 1;
     MySQLRequest MySQL = 2;
-    string DeploymentID = 3;
+    string DeploymentId = 3;
     string ComponentId = 4;
 }
 
@@ -92,11 +92,12 @@ message ProvisionStartResponse {
 }
 
 message ProvisionLogRequest {
-    string DeploymentID = 1;
+    string DeploymentId = 1;
+    string ComponentId = 2;
 }
 
 message ComponentLogRequest {
-    string DeploymentID = 1;
+    string DeploymentId = 1;
     string ComponentId = 2;
 }
 

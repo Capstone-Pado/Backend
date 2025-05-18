@@ -10,7 +10,7 @@ import (
 )
 
 func ProvisionEC2(req models.EC2ProvisionRequest) error {
-	basePath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentID, req.ComponentId)
+	basePath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentId, req.ComponentId)
 	_ = os.MkdirAll(basePath, 0755)
 
 	// 1. SSH 키 생성
@@ -36,7 +36,7 @@ func ProvisionEC2(req models.EC2ProvisionRequest) error {
 	if err != nil {
 		return fmt.Errorf("terraform run error: %w", err)
 	}
-	ip, err := utils.GetResourceIP(req.DeploymentID, req.ComponentId)
+	ip, err := utils.GetResourceIP(req.DeploymentId, req.ComponentId)
 	if err != nil {
 		return fmt.Errorf("get resource ip error: %w", err)
 	}
@@ -45,8 +45,8 @@ func ProvisionEC2(req models.EC2ProvisionRequest) error {
 	return nil
 }
 
-func DestroyEC2(deploymentID, componentID string) error {
-	basePath := fmt.Sprintf("workspaces/%s/%s", deploymentID, componentID)
+func DestroyEC2(deploymentId, componentId string) error {
+	basePath := fmt.Sprintf("workspaces/%s/%s", deploymentId, componentId)
 	if err := runTerraformCmd(basePath, "destroy", "-auto-approve"); err != nil {
 		return fmt.Errorf("terraform destroy error: %w", err)
 	}

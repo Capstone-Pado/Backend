@@ -11,7 +11,7 @@ import (
 func ProvisionMySQLService(req models.ServiceRequest) error {
 	// 0. Init sh 파일 경로 설정
 	tplPath := "templates/service/mysql/init.sh.tpl"
-	scriptPath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentID, req.ComponentId)
+	scriptPath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentId, req.ComponentId)
 	_ = os.MkdirAll(scriptPath, 0755)
 
 	// 1. 쉘 스크립트 템플릿 렌더링
@@ -22,12 +22,12 @@ func ProvisionMySQLService(req models.ServiceRequest) error {
 	}
 
 	// 2. 쉘 스크립트 실행
-	ip, err := utils.GetResourceIP(req.DeploymentID, req.ParentComponentId)
+	ip, err := utils.GetResourceIP(req.DeploymentId, req.ParentComponentId)
 	if err != nil {
 		return fmt.Errorf("get resource ip error: %w", err)
 	}
 	sshUser := "ubuntu" // 혹은 상황에 맞는 사용자명
-	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.DeploymentID, req.ParentComponentId)
+	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.DeploymentId, req.ParentComponentId)
 
 	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath)
 	if err != nil {
