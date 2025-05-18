@@ -1,0 +1,5 @@
+# backend/Dockerfile
+FROM openjdk:21-jdk-slim
+WORKDIR /app
+COPY java/build/libs/*.jar app.jar
+ENTRYPOINT ["java", "-jar", "app.jar"]

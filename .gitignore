@@ -1,3 +1,29 @@
+# 환경변수 파일 추가
+.env
+.env.gpg
+
+# Gradle 캐시ㆍ출력물
+.gradle/
+gradhome/
+**/build/
+**/out/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# 시스템
+.DS_Store
+Thumbs.db
+
+# 로그 파일
+*.log
+=======
+
 **/workspaces
 .env
 .DS_Store
+
