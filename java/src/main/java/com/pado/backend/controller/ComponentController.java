@@ -41,11 +41,11 @@ public class ComponentController {
         return ResponseEntity.ok(componentService.getComponentTypes());
     }
 
-    @Operation(summary = "컴포넌트 검색")
-    @GetMapping("/components/search")
-    public ResponseEntity<List<ComponentSearchDto>> searchComponents(@RequestParam(name = "q") String keyword) {
-        return ResponseEntity.ok(componentService.searchComponents(keyword));
-    }
+    // @Operation(summary = "컴포넌트 검색")
+    // @GetMapping("/components/search")
+    // public ResponseEntity<List<ComponentSearchDto>> searchComponents(@RequestParam(name = "q") String keyword) {
+    //     return ResponseEntity.ok(componentService.searchComponents(keyword));
+    // }
 
     @Operation(
         summary = "컴포넌트 배치",
@@ -62,7 +62,6 @@ public class ComponentController {
         return ResponseEntity.ok(componentService.createComponentToProject(projectId, request));
     }
 
-    // [ ]
     @Operation(summary = "컴포넌트 설정 적용")
     @PostMapping("/projects/{projectId}/components/{componentId}/setting")
     public ResponseEntity<DefaultResponseDto> applyComponentSetting(@PathVariable Long projectId, @PathVariable Long componentId, @RequestBody ComponentSettingDto request) {
@@ -85,7 +84,7 @@ public class ComponentController {
 
     @Operation(summary = "배치된 컴포넌트 검색")
     @GetMapping("/projects/{projectId}/components/search")
-    public ResponseEntity<List<ComponentSearchDto>> searchDeployedComponents(@PathVariable Long projectId, @RequestParam(name = "q") String keyword) {
+    public ResponseEntity<List<ComponentSearchDto>> searchDeployedComponents(@PathVariable Long projectId, @RequestParam(name = "q", required = false) String keyword) {
         return ResponseEntity.ok(componentService.searchDeployedComponents(projectId, keyword));
     }
 

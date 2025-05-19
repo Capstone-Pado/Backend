@@ -20,6 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+// TODO : createdAt, updatedAt
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -2,6 +2,7 @@ package com.pado.backend.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pado.backend.dto.response.ChargeEstimateDto;
 import com.pado.backend.dto.response.ChargeResultDto;

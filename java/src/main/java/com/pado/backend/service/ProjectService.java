@@ -29,7 +29,7 @@ import com.pado.backend.repository.UserRepository;
 import com.pado.backend.repository.mongo.ComponentStatusRepository;
 
 import lombok.RequiredArgsConstructor;
-// TODO 
+
 @Service
 @RequiredArgsConstructor
 public class ProjectService {
@@ -122,6 +122,7 @@ public class ProjectService {
                             component.getSubtype(),
                             component.getThumbnail(),
                             componentStatus,
+                            component.getParentComponentId() != null ? component.getParentComponentId().getComponentId() : null,
                             ownedServices.isEmpty() ? null : ownedServices,
                             links.isEmpty() ? null : links
                     );

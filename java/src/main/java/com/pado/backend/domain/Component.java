@@ -23,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+// TODO : createdAt, updatedAt
 public class Component {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,15 +48,15 @@ public class Component {
     private Component parentComponentId;
 
     // 자기 참조 관계 (자식 컴포넌트들)
-    @OneToMany(mappedBy = "parentComponentId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "parentComponentId")
     private List<Component> childComponents;
 
     // 연결 정보 - from에서 연결된 링크들
-    @OneToMany(mappedBy = "fromComponentId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "fromComponentId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComponentLink> fromLinks;
 
     // 연결 정보 - to로 연결된 링크들
-    @OneToMany(mappedBy = "toComponentId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "toComponentId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ComponentLink> toLinks;
 
 }
