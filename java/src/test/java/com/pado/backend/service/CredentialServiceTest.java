@@ -63,7 +63,7 @@ public class CredentialServiceTest {
 
         CredentialResponseDto response = credentialService.createCredential(request, 1L);
 
-        assertEquals("등록 완료", response.getMessage());
+        assertEquals("크리덴셜 등록 완료", response.getMessage());
         assertEquals("test", response.getName());
     }
 
@@ -85,7 +85,7 @@ public class CredentialServiceTest {
         List<CredentialResponseDto> result = credentialService.getAllCredentials(1L);
 
         assertEquals(1, result.size());
-        assertEquals("조회 완료", result.get(0).getMessage());
+        assertEquals("크리덴셜 조회 완료", result.get(0).getMessage());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class CredentialServiceTest {
 
         CredentialDetailResponseDto detail = credentialService.getCredential(1L, 100L);
 
-        assertEquals("조회 완료", detail.getMessage());
+        assertEquals("크리덴셜 조회 완료", detail.getMessage());
         assertEquals("test", detail.getName());
     }
 

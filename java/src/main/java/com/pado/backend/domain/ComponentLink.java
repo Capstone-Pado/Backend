@@ -22,10 +22,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+// TODO : createdAt
 public class ComponentLink {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long componentId;  // 혼동 피하려면 linkId로 바꾸는 것도 추천
+    private Long linkId;  // [x] 기존 componentId → linkId로 변경
 
     @Enumerated(EnumType.STRING)
     private ConnectionType connectionType;

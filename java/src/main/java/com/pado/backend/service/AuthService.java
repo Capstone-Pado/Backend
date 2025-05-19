@@ -1,6 +1,7 @@
 package com.pado.backend.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.pado.backend.domain.User;
 import com.pado.backend.dto.request.UserLoginRequestDto;

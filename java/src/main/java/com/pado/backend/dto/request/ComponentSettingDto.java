@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ComponentSettingDto {
-    @Schema(description = "컴포넌트 설정 정보 (JSON 형태 문자열)", example = "{\"key\": \"value\"}")
+    @Schema(description = "컴포넌트 설정 정보 (gRPC 요청용 JSON 문자열)", 
+    example = "{ \"EC2\": { \"InstanceType\": \"t2.micro\", ... }, \"Spring\": { ... }, \"DeploymentId\": \"deployment-001\" }")
     private String settingJson;
 }

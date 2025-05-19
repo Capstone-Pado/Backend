@@ -27,8 +27,12 @@ public class ComponentInfo {
     @Schema(description = "썸네일 이미지 URL", example = "https://cdn.example.com/mysql.png")
     private String thumbnail;
 
-    @Schema(description = "상태", example = "RUNNING")
+    @Schema(description = "상태", example = "DRAFT")
     private ComponentStatus status;
+
+    // CHECKLIST 프론트에서 어떤 부모 컴포넌트에 종속시킬지 지정하려면 parentComponentId를 JSON으로 보내야 하며, 그 값을 받아줄 DTO 필드가 있어야 한다.
+    @Schema(description = "부모 컴포넌트 ID (SERVICE일 경우 필수)", example = "101")
+    private Long parentComponentId;
 
     @Schema(description = "해당 컴포넌트가 소유한 서비스 목록")
     private List<OwnedService> ownedServices; // 본인에게 포함된 서비스, 리소스일 경우 null
@@ -48,7 +52,7 @@ public class ComponentInfo {
         @Schema(description = "서비스 타입", example = "MySQL Read Replica")
         private String serviceType;
 
-        @Schema(description = "서비스 상태", example = "RUNNING")
+        @Schema(description = "서비스 상태", example = "DRAFT")
         private ComponentStatus status;
     }
 
