@@ -4,17 +4,10 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"path/filepath"
 )
 
-func RunRemoteScript(ip, user, keyPath, localScriptPath string) error {
+func RunRemoteScript(ip, user, keyPath, localScriptPath string, logFile *os.File) error {
 	remotePath := "/home/" + user + "/init.sh"
-	logFilePath := filepath.Join(filepath.Dir(localScriptPath), "provision.log")
-	logFile, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil {
-		return err
-	}
-	defer logFile.Close()
 
 	// 1. scp로 복사
 	scpCmd := exec.Command("scp",
@@ -38,6 +31,24 @@ func RunRemoteScript(ip, user, keyPath, localScriptPath string) error {
 	)
 	sshCmd.Stdout = logFile
 	sshCmd.Stderr = logFile
+	if err := sshCmd.Run(); err != nil {
+		return fmt.Errorf("ssh exec error: %w", err)
+	}
+
+	return nil
+}
+
+func RunRemoteCommand(ip, user, keyPath, command string, logFile *os.File) error {
+	sshCmd := exec.Command("ssh",
+		"-i", keyPath,
+		"-o", "StrictHostKeyChecking=no",
+		fmt.Sprintf("%s@%s", user, ip),
+		fmt.Sprintf("sudo bash -c '%s'", command),
+	)
+
+	sshCmd.Stdout = logFile
+	sshCmd.Stderr = logFile
+
 	if err := sshCmd.Run(); err != nil {
 		return fmt.Errorf("ssh exec error: %w", err)
 	}

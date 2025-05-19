@@ -522,6 +522,7 @@ type StartEC2SpringRequest struct {
 	EC2           *EC2Request            `protobuf:"bytes,1,opt,name=EC2,proto3" json:"EC2,omitempty"`
 	Spring        *SpringRequest         `protobuf:"bytes,2,opt,name=Spring,proto3" json:"Spring,omitempty"`
 	DeploymentId  string                 `protobuf:"bytes,3,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
+	First         bool                   `protobuf:"varint,4,opt,name=first,proto3" json:"first,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -577,12 +578,20 @@ func (x *StartEC2SpringRequest) GetDeploymentId() string {
 	return ""
 }
 
+func (x *StartEC2SpringRequest) GetFirst() bool {
+	if x != nil {
+		return x.First
+	}
+	return false
+}
+
 type StartS3ReactRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	S3            *S3Request             `protobuf:"bytes,1,opt,name=S3,proto3" json:"S3,omitempty"`
 	React         *ReactRequest          `protobuf:"bytes,2,opt,name=React,proto3" json:"React,omitempty"`
 	DeploymentId  string                 `protobuf:"bytes,3,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
 	ComponentId   string                 `protobuf:"bytes,4,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
+	First         bool                   `protobuf:"varint,5,opt,name=first,proto3" json:"first,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -645,12 +654,20 @@ func (x *StartS3ReactRequest) GetComponentId() string {
 	return ""
 }
 
+func (x *StartS3ReactRequest) GetFirst() bool {
+	if x != nil {
+		return x.First
+	}
+	return false
+}
+
 type StartEC2MySQLRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EC2           *EC2Request            `protobuf:"bytes,1,opt,name=EC2,proto3" json:"EC2,omitempty"`
 	MySQL         *MySQLRequest          `protobuf:"bytes,2,opt,name=MySQL,proto3" json:"MySQL,omitempty"`
 	DeploymentId  string                 `protobuf:"bytes,3,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
 	ComponentId   string                 `protobuf:"bytes,4,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
+	First         bool                   `protobuf:"varint,5,opt,name=first,proto3" json:"first,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -713,7 +730,256 @@ func (x *StartEC2MySQLRequest) GetComponentId() string {
 	return ""
 }
 
-type ProvisionStartResponse struct {
+func (x *StartEC2MySQLRequest) GetFirst() bool {
+	if x != nil {
+		return x.First
+	}
+	return false
+}
+
+type ComponentSpec struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Types that are valid to be assigned to Component:
+	//
+	//	*ComponentSpec_EC2
+	//	*ComponentSpec_S3
+	//	*ComponentSpec_Spring
+	//	*ComponentSpec_MySQL
+	//	*ComponentSpec_React
+	Component     isComponentSpec_Component `protobuf_oneof:"component"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ComponentSpec) Reset() {
+	*x = ComponentSpec{}
+	mi := &file_provision_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ComponentSpec) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ComponentSpec) ProtoMessage() {}
+
+func (x *ComponentSpec) ProtoReflect() protoreflect.Message {
+	mi := &file_provision_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ComponentSpec.ProtoReflect.Descriptor instead.
+func (*ComponentSpec) Descriptor() ([]byte, []int) {
+	return file_provision_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ComponentSpec) GetComponent() isComponentSpec_Component {
+	if x != nil {
+		return x.Component
+	}
+	return nil
+}
+
+func (x *ComponentSpec) GetEC2() *EC2Request {
+	if x != nil {
+		if x, ok := x.Component.(*ComponentSpec_EC2); ok {
+			return x.EC2
+		}
+	}
+	return nil
+}
+
+func (x *ComponentSpec) GetS3() *S3Request {
+	if x != nil {
+		if x, ok := x.Component.(*ComponentSpec_S3); ok {
+			return x.S3
+		}
+	}
+	return nil
+}
+
+func (x *ComponentSpec) GetSpring() *SpringRequest {
+	if x != nil {
+		if x, ok := x.Component.(*ComponentSpec_Spring); ok {
+			return x.Spring
+		}
+	}
+	return nil
+}
+
+func (x *ComponentSpec) GetMySQL() *MySQLRequest {
+	if x != nil {
+		if x, ok := x.Component.(*ComponentSpec_MySQL); ok {
+			return x.MySQL
+		}
+	}
+	return nil
+}
+
+func (x *ComponentSpec) GetReact() *ReactRequest {
+	if x != nil {
+		if x, ok := x.Component.(*ComponentSpec_React); ok {
+			return x.React
+		}
+	}
+	return nil
+}
+
+type isComponentSpec_Component interface {
+	isComponentSpec_Component()
+}
+
+type ComponentSpec_EC2 struct {
+	EC2 *EC2Request `protobuf:"bytes,1,opt,name=EC2,proto3,oneof"`
+}
+
+type ComponentSpec_S3 struct {
+	S3 *S3Request `protobuf:"bytes,2,opt,name=S3,proto3,oneof"`
+}
+
+type ComponentSpec_Spring struct {
+	Spring *SpringRequest `protobuf:"bytes,3,opt,name=Spring,proto3,oneof"`
+}
+
+type ComponentSpec_MySQL struct {
+	MySQL *MySQLRequest `protobuf:"bytes,4,opt,name=MySQL,proto3,oneof"`
+}
+
+type ComponentSpec_React struct {
+	React *ReactRequest `protobuf:"bytes,5,opt,name=React,proto3,oneof"`
+}
+
+func (*ComponentSpec_EC2) isComponentSpec_Component() {}
+
+func (*ComponentSpec_S3) isComponentSpec_Component() {}
+
+func (*ComponentSpec_Spring) isComponentSpec_Component() {}
+
+func (*ComponentSpec_MySQL) isComponentSpec_Component() {}
+
+func (*ComponentSpec_React) isComponentSpec_Component() {}
+
+type DeploymentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeploymentId  string                 `protobuf:"bytes,1,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
+	Components    []*ComponentSpec       `protobuf:"bytes,2,rep,name=Components,proto3" json:"Components,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeploymentRequest) Reset() {
+	*x = DeploymentRequest{}
+	mi := &file_provision_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeploymentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeploymentRequest) ProtoMessage() {}
+
+func (x *DeploymentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_provision_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeploymentRequest.ProtoReflect.Descriptor instead.
+func (*DeploymentRequest) Descriptor() ([]byte, []int) {
+	return file_provision_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *DeploymentRequest) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *DeploymentRequest) GetComponents() []*ComponentSpec {
+	if x != nil {
+		return x.Components
+	}
+	return nil
+}
+
+type DeployLog struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DeploymentId  string                 `protobuf:"bytes,1,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
+	ComponentId   string                 `protobuf:"bytes,2,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
+	LogLine       string                 `protobuf:"bytes,3,opt,name=log_line,json=logLine,proto3" json:"log_line,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeployLog) Reset() {
+	*x = DeployLog{}
+	mi := &file_provision_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeployLog) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeployLog) ProtoMessage() {}
+
+func (x *DeployLog) ProtoReflect() protoreflect.Message {
+	mi := &file_provision_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeployLog.ProtoReflect.Descriptor instead.
+func (*DeployLog) Descriptor() ([]byte, []int) {
+	return file_provision_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *DeployLog) GetDeploymentId() string {
+	if x != nil {
+		return x.DeploymentId
+	}
+	return ""
+}
+
+func (x *DeployLog) GetComponentId() string {
+	if x != nil {
+		return x.ComponentId
+	}
+	return ""
+}
+
+func (x *DeployLog) GetLogLine() string {
+	if x != nil {
+		return x.LogLine
+	}
+	return ""
+}
+
+type StatusResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Status        string                 `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
 	Data          map[string]string      `protobuf:"bytes,2,rep,name=data,proto3" json:"data,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -721,21 +987,21 @@ type ProvisionStartResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ProvisionStartResponse) Reset() {
-	*x = ProvisionStartResponse{}
-	mi := &file_provision_proto_msgTypes[9]
+func (x *StatusResponse) Reset() {
+	*x = StatusResponse{}
+	mi := &file_provision_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ProvisionStartResponse) String() string {
+func (x *StatusResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ProvisionStartResponse) ProtoMessage() {}
+func (*StatusResponse) ProtoMessage() {}
 
-func (x *ProvisionStartResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_provision_proto_msgTypes[9]
+func (x *StatusResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_provision_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -746,48 +1012,48 @@ func (x *ProvisionStartResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ProvisionStartResponse.ProtoReflect.Descriptor instead.
-func (*ProvisionStartResponse) Descriptor() ([]byte, []int) {
-	return file_provision_proto_rawDescGZIP(), []int{9}
+// Deprecated: Use StatusResponse.ProtoReflect.Descriptor instead.
+func (*StatusResponse) Descriptor() ([]byte, []int) {
+	return file_provision_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *ProvisionStartResponse) GetStatus() string {
+func (x *StatusResponse) GetStatus() string {
 	if x != nil {
 		return x.Status
 	}
 	return ""
 }
 
-func (x *ProvisionStartResponse) GetData() map[string]string {
+func (x *StatusResponse) GetData() map[string]string {
 	if x != nil {
 		return x.Data
 	}
 	return nil
 }
 
-type ProvisionLogRequest struct {
+type CostResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DeploymentId  string                 `protobuf:"bytes,1,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
-	ComponentId   string                 `protobuf:"bytes,2,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
+	Cost          string                 `protobuf:"bytes,1,opt,name=cost,proto3" json:"cost,omitempty"`
+	Data          map[string]string      `protobuf:"bytes,2,rep,name=data,proto3" json:"data,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ProvisionLogRequest) Reset() {
-	*x = ProvisionLogRequest{}
-	mi := &file_provision_proto_msgTypes[10]
+func (x *CostResponse) Reset() {
+	*x = CostResponse{}
+	mi := &file_provision_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ProvisionLogRequest) String() string {
+func (x *CostResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ProvisionLogRequest) ProtoMessage() {}
+func (*CostResponse) ProtoMessage() {}
 
-func (x *ProvisionLogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_provision_proto_msgTypes[10]
+func (x *CostResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_provision_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -798,48 +1064,47 @@ func (x *ProvisionLogRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ProvisionLogRequest.ProtoReflect.Descriptor instead.
-func (*ProvisionLogRequest) Descriptor() ([]byte, []int) {
-	return file_provision_proto_rawDescGZIP(), []int{10}
+// Deprecated: Use CostResponse.ProtoReflect.Descriptor instead.
+func (*CostResponse) Descriptor() ([]byte, []int) {
+	return file_provision_proto_rawDescGZIP(), []int{13}
 }
 
-func (x *ProvisionLogRequest) GetDeploymentId() string {
+func (x *CostResponse) GetCost() string {
 	if x != nil {
-		return x.DeploymentId
+		return x.Cost
 	}
 	return ""
 }
 
-func (x *ProvisionLogRequest) GetComponentId() string {
+func (x *CostResponse) GetData() map[string]string {
 	if x != nil {
-		return x.ComponentId
+		return x.Data
 	}
-	return ""
+	return nil
 }
 
-type ComponentLogRequest struct {
+type DeploymentId struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DeploymentId  string                 `protobuf:"bytes,1,opt,name=DeploymentId,proto3" json:"DeploymentId,omitempty"`
-	ComponentId   string                 `protobuf:"bytes,2,opt,name=ComponentId,proto3" json:"ComponentId,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *ComponentLogRequest) Reset() {
-	*x = ComponentLogRequest{}
-	mi := &file_provision_proto_msgTypes[11]
+func (x *DeploymentId) Reset() {
+	*x = DeploymentId{}
+	mi := &file_provision_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *ComponentLogRequest) String() string {
+func (x *DeploymentId) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*ComponentLogRequest) ProtoMessage() {}
+func (*DeploymentId) ProtoMessage() {}
 
-func (x *ComponentLogRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_provision_proto_msgTypes[11]
+func (x *DeploymentId) ProtoReflect() protoreflect.Message {
+	mi := &file_provision_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -850,21 +1115,14 @@ func (x *ComponentLogRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use ComponentLogRequest.ProtoReflect.Descriptor instead.
-func (*ComponentLogRequest) Descriptor() ([]byte, []int) {
-	return file_provision_proto_rawDescGZIP(), []int{11}
+// Deprecated: Use DeploymentId.ProtoReflect.Descriptor instead.
+func (*DeploymentId) Descriptor() ([]byte, []int) {
+	return file_provision_proto_rawDescGZIP(), []int{14}
 }
 
-func (x *ComponentLogRequest) GetDeploymentId() string {
+func (x *DeploymentId) GetDeploymentId() string {
 	if x != nil {
 		return x.DeploymentId
-	}
-	return ""
-}
-
-func (x *ComponentLogRequest) GetComponentId() string {
-	if x != nil {
-		return x.ComponentId
 	}
 	return ""
 }
@@ -879,7 +1137,7 @@ type ProvisionLog struct {
 
 func (x *ProvisionLog) Reset() {
 	*x = ProvisionLog{}
-	mi := &file_provision_proto_msgTypes[12]
+	mi := &file_provision_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -891,7 +1149,7 @@ func (x *ProvisionLog) String() string {
 func (*ProvisionLog) ProtoMessage() {}
 
 func (x *ProvisionLog) ProtoReflect() protoreflect.Message {
-	mi := &file_provision_proto_msgTypes[12]
+	mi := &file_provision_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -904,7 +1162,7 @@ func (x *ProvisionLog) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ProvisionLog.ProtoReflect.Descriptor instead.
 func (*ProvisionLog) Descriptor() ([]byte, []int) {
-	return file_provision_proto_rawDescGZIP(), []int{12}
+	return file_provision_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ProvisionLog) GetComponentId() string {
@@ -976,42 +1234,64 @@ const file_provision_proto_rawDesc = "" +
 	"\vComponentId\x18\t \x01(\tR\vComponentId\x1a6\n" +
 	"\bEnvEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x96\x01\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xac\x01\n" +
 	"\x15StartEC2SpringRequest\x12'\n" +
 	"\x03EC2\x18\x01 \x01(\v2\x15.provision.EC2RequestR\x03EC2\x120\n" +
 	"\x06Spring\x18\x02 \x01(\v2\x18.provision.SpringRequestR\x06Spring\x12\"\n" +
-	"\fDeploymentId\x18\x03 \x01(\tR\fDeploymentId\"\xb0\x01\n" +
+	"\fDeploymentId\x18\x03 \x01(\tR\fDeploymentId\x12\x14\n" +
+	"\x05first\x18\x04 \x01(\bR\x05first\"\xc6\x01\n" +
 	"\x13StartS3ReactRequest\x12$\n" +
 	"\x02S3\x18\x01 \x01(\v2\x14.provision.S3RequestR\x02S3\x12-\n" +
 	"\x05React\x18\x02 \x01(\v2\x17.provision.ReactRequestR\x05React\x12\"\n" +
 	"\fDeploymentId\x18\x03 \x01(\tR\fDeploymentId\x12 \n" +
-	"\vComponentId\x18\x04 \x01(\tR\vComponentId\"\xb4\x01\n" +
+	"\vComponentId\x18\x04 \x01(\tR\vComponentId\x12\x14\n" +
+	"\x05first\x18\x05 \x01(\bR\x05first\"\xca\x01\n" +
 	"\x14StartEC2MySQLRequest\x12'\n" +
 	"\x03EC2\x18\x01 \x01(\v2\x15.provision.EC2RequestR\x03EC2\x12-\n" +
 	"\x05MySQL\x18\x02 \x01(\v2\x17.provision.MySQLRequestR\x05MySQL\x12\"\n" +
 	"\fDeploymentId\x18\x03 \x01(\tR\fDeploymentId\x12 \n" +
-	"\vComponentId\x18\x04 \x01(\tR\vComponentId\"\xaa\x01\n" +
-	"\x16ProvisionStartResponse\x12\x16\n" +
-	"\x06status\x18\x01 \x01(\tR\x06status\x12?\n" +
-	"\x04data\x18\x02 \x03(\v2+.provision.ProvisionStartResponse.DataEntryR\x04data\x1a7\n" +
+	"\vComponentId\x18\x04 \x01(\tR\vComponentId\x12\x14\n" +
+	"\x05first\x18\x05 \x01(\bR\x05first\"\x85\x02\n" +
+	"\rComponentSpec\x12)\n" +
+	"\x03EC2\x18\x01 \x01(\v2\x15.provision.EC2RequestH\x00R\x03EC2\x12&\n" +
+	"\x02S3\x18\x02 \x01(\v2\x14.provision.S3RequestH\x00R\x02S3\x122\n" +
+	"\x06Spring\x18\x03 \x01(\v2\x18.provision.SpringRequestH\x00R\x06Spring\x12/\n" +
+	"\x05MySQL\x18\x04 \x01(\v2\x17.provision.MySQLRequestH\x00R\x05MySQL\x12/\n" +
+	"\x05React\x18\x05 \x01(\v2\x17.provision.ReactRequestH\x00R\x05ReactB\v\n" +
+	"\tcomponent\"q\n" +
+	"\x11DeploymentRequest\x12\"\n" +
+	"\fDeploymentId\x18\x01 \x01(\tR\fDeploymentId\x128\n" +
+	"\n" +
+	"Components\x18\x02 \x03(\v2\x18.provision.ComponentSpecR\n" +
+	"Components\"l\n" +
+	"\tDeployLog\x12\"\n" +
+	"\fDeploymentId\x18\x01 \x01(\tR\fDeploymentId\x12 \n" +
+	"\vComponentId\x18\x02 \x01(\tR\vComponentId\x12\x19\n" +
+	"\blog_line\x18\x03 \x01(\tR\alogLine\"\x9a\x01\n" +
+	"\x0eStatusResponse\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\tR\x06status\x127\n" +
+	"\x04data\x18\x02 \x03(\v2#.provision.StatusResponse.DataEntryR\x04data\x1a7\n" +
 	"\tDataEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"[\n" +
-	"\x13ProvisionLogRequest\x12\"\n" +
-	"\fDeploymentId\x18\x01 \x01(\tR\fDeploymentId\x12 \n" +
-	"\vComponentId\x18\x02 \x01(\tR\vComponentId\"[\n" +
-	"\x13ComponentLogRequest\x12\"\n" +
-	"\fDeploymentId\x18\x01 \x01(\tR\fDeploymentId\x12 \n" +
-	"\vComponentId\x18\x02 \x01(\tR\vComponentId\"K\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x92\x01\n" +
+	"\fCostResponse\x12\x12\n" +
+	"\x04cost\x18\x01 \x01(\tR\x04cost\x125\n" +
+	"\x04data\x18\x02 \x03(\v2!.provision.CostResponse.DataEntryR\x04data\x1a7\n" +
+	"\tDataEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"2\n" +
+	"\fDeploymentId\x12\"\n" +
+	"\fDeploymentId\x18\x01 \x01(\tR\fDeploymentId\"K\n" +
 	"\fProvisionLog\x12 \n" +
 	"\vComponentId\x18\x01 \x01(\tR\vComponentId\x12\x19\n" +
-	"\blog_line\x18\x02 \x01(\tR\alogLine2\xb8\x03\n" +
-	"\x13ProvisioningService\x12U\n" +
-	"\x0eStartEC2Spring\x12 .provision.StartEC2SpringRequest\x1a!.provision.ProvisionStartResponse\x12S\n" +
-	"\rStartEC2MySQL\x12\x1f.provision.StartEC2MySQLRequest\x1a!.provision.ProvisionStartResponse\x12Q\n" +
-	"\fStartS3React\x12\x1e.provision.StartS3ReactRequest\x1a!.provision.ProvisionStartResponse\x12P\n" +
-	"\x13StreamProvisionLogs\x12\x1e.provision.ProvisionLogRequest\x1a\x17.provision.ProvisionLog0\x01\x12P\n" +
-	"\x13StreamComponentLogs\x12\x1e.provision.ComponentLogRequest\x1a\x17.provision.ProvisionLog0\x01B\bZ\x06proto/b\x06proto3"
+	"\blog_line\x18\x02 \x01(\tR\alogLine2\xae\x02\n" +
+	"\x13ProvisioningService\x12K\n" +
+	"\x10DestroyComponent\x12\x1c.provision.DeploymentRequest\x1a\x19.provision.StatusResponse\x12C\n" +
+	"\n" +
+	"PlanDeploy\x12\x1c.provision.DeploymentRequest\x1a\x17.provision.CostResponse\x12>\n" +
+	"\x06Deploy\x12\x1c.provision.DeploymentRequest\x1a\x14.provision.DeployLog0\x01\x12E\n" +
+	"\n" +
+	"StopDeploy\x12\x1c.provision.DeploymentRequest\x1a\x19.provision.StatusResponseB\bZ\x06proto/b\x06proto3"
 
 var (
 	file_provision_proto_rawDescOnce sync.Once
@@ -1025,27 +1305,31 @@ func file_provision_proto_rawDescGZIP() []byte {
 	return file_provision_proto_rawDescData
 }
 
-var file_provision_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_provision_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
 var file_provision_proto_goTypes = []any{
-	(*EC2Request)(nil),             // 0: provision.EC2Request
-	(*S3Request)(nil),              // 1: provision.S3Request
-	(*GitCredential)(nil),          // 2: provision.GitCredential
-	(*ReactRequest)(nil),           // 3: provision.ReactRequest
-	(*MySQLRequest)(nil),           // 4: provision.MySQLRequest
-	(*SpringRequest)(nil),          // 5: provision.SpringRequest
-	(*StartEC2SpringRequest)(nil),  // 6: provision.StartEC2SpringRequest
-	(*StartS3ReactRequest)(nil),    // 7: provision.StartS3ReactRequest
-	(*StartEC2MySQLRequest)(nil),   // 8: provision.StartEC2MySQLRequest
-	(*ProvisionStartResponse)(nil), // 9: provision.ProvisionStartResponse
-	(*ProvisionLogRequest)(nil),    // 10: provision.ProvisionLogRequest
-	(*ComponentLogRequest)(nil),    // 11: provision.ComponentLogRequest
-	(*ProvisionLog)(nil),           // 12: provision.ProvisionLog
-	nil,                            // 13: provision.SpringRequest.EnvEntry
-	nil,                            // 14: provision.ProvisionStartResponse.DataEntry
+	(*EC2Request)(nil),            // 0: provision.EC2Request
+	(*S3Request)(nil),             // 1: provision.S3Request
+	(*GitCredential)(nil),         // 2: provision.GitCredential
+	(*ReactRequest)(nil),          // 3: provision.ReactRequest
+	(*MySQLRequest)(nil),          // 4: provision.MySQLRequest
+	(*SpringRequest)(nil),         // 5: provision.SpringRequest
+	(*StartEC2SpringRequest)(nil), // 6: provision.StartEC2SpringRequest
+	(*StartS3ReactRequest)(nil),   // 7: provision.StartS3ReactRequest
+	(*StartEC2MySQLRequest)(nil),  // 8: provision.StartEC2MySQLRequest
+	(*ComponentSpec)(nil),         // 9: provision.ComponentSpec
+	(*DeploymentRequest)(nil),     // 10: provision.DeploymentRequest
+	(*DeployLog)(nil),             // 11: provision.DeployLog
+	(*StatusResponse)(nil),        // 12: provision.StatusResponse
+	(*CostResponse)(nil),          // 13: provision.CostResponse
+	(*DeploymentId)(nil),          // 14: provision.DeploymentId
+	(*ProvisionLog)(nil),          // 15: provision.ProvisionLog
+	nil,                           // 16: provision.SpringRequest.EnvEntry
+	nil,                           // 17: provision.StatusResponse.DataEntry
+	nil,                           // 18: provision.CostResponse.DataEntry
 }
 var file_provision_proto_depIdxs = []int32{
 	2,  // 0: provision.ReactRequest.GitCredential:type_name -> provision.GitCredential
-	13, // 1: provision.SpringRequest.Env:type_name -> provision.SpringRequest.EnvEntry
+	16, // 1: provision.SpringRequest.Env:type_name -> provision.SpringRequest.EnvEntry
 	2,  // 2: provision.SpringRequest.GitCredential:type_name -> provision.GitCredential
 	0,  // 3: provision.StartEC2SpringRequest.EC2:type_name -> provision.EC2Request
 	5,  // 4: provision.StartEC2SpringRequest.Spring:type_name -> provision.SpringRequest
@@ -1053,22 +1337,27 @@ var file_provision_proto_depIdxs = []int32{
 	3,  // 6: provision.StartS3ReactRequest.React:type_name -> provision.ReactRequest
 	0,  // 7: provision.StartEC2MySQLRequest.EC2:type_name -> provision.EC2Request
 	4,  // 8: provision.StartEC2MySQLRequest.MySQL:type_name -> provision.MySQLRequest
-	14, // 9: provision.ProvisionStartResponse.data:type_name -> provision.ProvisionStartResponse.DataEntry
-	6,  // 10: provision.ProvisioningService.StartEC2Spring:input_type -> provision.StartEC2SpringRequest
-	8,  // 11: provision.ProvisioningService.StartEC2MySQL:input_type -> provision.StartEC2MySQLRequest
-	7,  // 12: provision.ProvisioningService.StartS3React:input_type -> provision.StartS3ReactRequest
-	10, // 13: provision.ProvisioningService.StreamProvisionLogs:input_type -> provision.ProvisionLogRequest
-	11, // 14: provision.ProvisioningService.StreamComponentLogs:input_type -> provision.ComponentLogRequest
-	9,  // 15: provision.ProvisioningService.StartEC2Spring:output_type -> provision.ProvisionStartResponse
-	9,  // 16: provision.ProvisioningService.StartEC2MySQL:output_type -> provision.ProvisionStartResponse
-	9,  // 17: provision.ProvisioningService.StartS3React:output_type -> provision.ProvisionStartResponse
-	12, // 18: provision.ProvisioningService.StreamProvisionLogs:output_type -> provision.ProvisionLog
-	12, // 19: provision.ProvisioningService.StreamComponentLogs:output_type -> provision.ProvisionLog
-	15, // [15:20] is the sub-list for method output_type
-	10, // [10:15] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	0,  // 9: provision.ComponentSpec.EC2:type_name -> provision.EC2Request
+	1,  // 10: provision.ComponentSpec.S3:type_name -> provision.S3Request
+	5,  // 11: provision.ComponentSpec.Spring:type_name -> provision.SpringRequest
+	4,  // 12: provision.ComponentSpec.MySQL:type_name -> provision.MySQLRequest
+	3,  // 13: provision.ComponentSpec.React:type_name -> provision.ReactRequest
+	9,  // 14: provision.DeploymentRequest.Components:type_name -> provision.ComponentSpec
+	17, // 15: provision.StatusResponse.data:type_name -> provision.StatusResponse.DataEntry
+	18, // 16: provision.CostResponse.data:type_name -> provision.CostResponse.DataEntry
+	10, // 17: provision.ProvisioningService.DestroyComponent:input_type -> provision.DeploymentRequest
+	10, // 18: provision.ProvisioningService.PlanDeploy:input_type -> provision.DeploymentRequest
+	10, // 19: provision.ProvisioningService.Deploy:input_type -> provision.DeploymentRequest
+	10, // 20: provision.ProvisioningService.StopDeploy:input_type -> provision.DeploymentRequest
+	12, // 21: provision.ProvisioningService.DestroyComponent:output_type -> provision.StatusResponse
+	13, // 22: provision.ProvisioningService.PlanDeploy:output_type -> provision.CostResponse
+	11, // 23: provision.ProvisioningService.Deploy:output_type -> provision.DeployLog
+	12, // 24: provision.ProvisioningService.StopDeploy:output_type -> provision.StatusResponse
+	21, // [21:25] is the sub-list for method output_type
+	17, // [17:21] is the sub-list for method input_type
+	17, // [17:17] is the sub-list for extension type_name
+	17, // [17:17] is the sub-list for extension extendee
+	0,  // [0:17] is the sub-list for field type_name
 }
 
 func init() { file_provision_proto_init() }
@@ -1076,13 +1365,20 @@ func file_provision_proto_init() {
 	if File_provision_proto != nil {
 		return
 	}
+	file_provision_proto_msgTypes[9].OneofWrappers = []any{
+		(*ComponentSpec_EC2)(nil),
+		(*ComponentSpec_S3)(nil),
+		(*ComponentSpec_Spring)(nil),
+		(*ComponentSpec_MySQL)(nil),
+		(*ComponentSpec_React)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_provision_proto_rawDesc), len(file_provision_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   19,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
