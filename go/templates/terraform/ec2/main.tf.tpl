@@ -26,6 +26,7 @@ resource "aws_instance" "app" {
               EOF
   tags = {
     Name = "{{ .InstanceName }}"
+    Project = "{{ .DeploymentId }}"
   }
   vpc_security_group_ids = [aws_security_group.{{ .ComponentId }}-sg.id]
 }
@@ -52,6 +53,9 @@ resource "aws_security_group" "{{ .ComponentId }}-sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Project = "{{ .DeploymentId }}"
   }
 }
 

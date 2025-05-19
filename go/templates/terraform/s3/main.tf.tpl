@@ -11,6 +11,7 @@ resource "aws_s3_bucket" "{{ .ComponentId }}" {
   tags = {
     DeploymentId = "{{ .DeploymentId }}"
     ComponentId  = "{{ .ComponentId }}"
+    Project = "{{ .DeploymentId }}"
   }
 }
 

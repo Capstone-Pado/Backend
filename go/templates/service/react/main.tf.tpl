@@ -17,6 +17,7 @@ resource "aws_instance" "app" {
   key_name      = "tmp"
   tags = {
     Name = "Builder"
+    Project = "{{ .DeploymentId }}"
   }
   vpc_security_group_ids = [aws_security_group.app_sg.id]
 
@@ -37,6 +38,10 @@ resource "aws_security_group" "app_sg" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Project = "{{ .DeploymentId }}"
   }
 }
 

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func ProvisionSpringService(req models.ServiceRequest) error {
+func ProvisionSpringService(req models.ServiceRequest, logFile *os.File) error {
 	basePath := "workspaces/" + req.DeploymentId
 	info, err := os.Stat(basePath)
 	if os.IsNotExist(err) {
@@ -34,10 +34,25 @@ func ProvisionSpringService(req models.ServiceRequest) error {
 	}
 	sshUser := "ubuntu" // 혹은 상황에 맞는 사용자명
 	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.DeploymentId, req.ParentComponentId)
-	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath)
+	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath, logFile)
 	if err != nil {
 		return fmt.Errorf("run remote script error: %w", err)
 	}
 
+	return nil
+}
+
+func DestroySpringService(DeploymentId string, ParentComponentId string, ComponentId string, logFile *os.File) error {
+	ip, err := utils.GetResourceIP(DeploymentId, ParentComponentId)
+	if err != nil {
+		return fmt.Errorf("get resource ip error: %w", err)
+	}
+	sshUser := "ubuntu" // 혹은 상황에 맞는 사용자명
+	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", DeploymentId, ParentComponentId)
+	command := fmt.Sprintf("sudo docker rm -f %s && sudo docker rm -f %s-nginx", ComponentId, ComponentId)
+	err = utils.RunRemoteCommand(ip, sshUser, keyPath, command, logFile)
+	if err != nil {
+		return fmt.Errorf("run remote script error: %w", err)
+	}
 	return nil
 }

@@ -19,22 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ProvisioningService_StartEC2Spring_FullMethodName      = "/provision.ProvisioningService/StartEC2Spring"
-	ProvisioningService_StartEC2MySQL_FullMethodName       = "/provision.ProvisioningService/StartEC2MySQL"
-	ProvisioningService_StartS3React_FullMethodName        = "/provision.ProvisioningService/StartS3React"
-	ProvisioningService_StreamProvisionLogs_FullMethodName = "/provision.ProvisioningService/StreamProvisionLogs"
-	ProvisioningService_StreamComponentLogs_FullMethodName = "/provision.ProvisioningService/StreamComponentLogs"
+	ProvisioningService_DestroyComponent_FullMethodName = "/provision.ProvisioningService/DestroyComponent"
+	ProvisioningService_PlanDeploy_FullMethodName       = "/provision.ProvisioningService/PlanDeploy"
+	ProvisioningService_Deploy_FullMethodName           = "/provision.ProvisioningService/Deploy"
+	ProvisioningService_StopDeploy_FullMethodName       = "/provision.ProvisioningService/StopDeploy"
 )
 
 // ProvisioningServiceClient is the client API for ProvisioningService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ProvisioningServiceClient interface {
-	StartEC2Spring(ctx context.Context, in *StartEC2SpringRequest, opts ...grpc.CallOption) (*ProvisionStartResponse, error)
-	StartEC2MySQL(ctx context.Context, in *StartEC2MySQLRequest, opts ...grpc.CallOption) (*ProvisionStartResponse, error)
-	StartS3React(ctx context.Context, in *StartS3ReactRequest, opts ...grpc.CallOption) (*ProvisionStartResponse, error)
-	StreamProvisionLogs(ctx context.Context, in *ProvisionLogRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvisionLog], error)
-	StreamComponentLogs(ctx context.Context, in *ComponentLogRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvisionLog], error)
+	DestroyComponent(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (*StatusResponse, error)
+	PlanDeploy(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (*CostResponse, error)
+	Deploy(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DeployLog], error)
+	StopDeploy(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (*StatusResponse, error)
 }
 
 type provisioningServiceClient struct {
@@ -45,43 +43,33 @@ func NewProvisioningServiceClient(cc grpc.ClientConnInterface) ProvisioningServi
 	return &provisioningServiceClient{cc}
 }
 
-func (c *provisioningServiceClient) StartEC2Spring(ctx context.Context, in *StartEC2SpringRequest, opts ...grpc.CallOption) (*ProvisionStartResponse, error) {
+func (c *provisioningServiceClient) DestroyComponent(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ProvisionStartResponse)
-	err := c.cc.Invoke(ctx, ProvisioningService_StartEC2Spring_FullMethodName, in, out, cOpts...)
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, ProvisioningService_DestroyComponent_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *provisioningServiceClient) StartEC2MySQL(ctx context.Context, in *StartEC2MySQLRequest, opts ...grpc.CallOption) (*ProvisionStartResponse, error) {
+func (c *provisioningServiceClient) PlanDeploy(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (*CostResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ProvisionStartResponse)
-	err := c.cc.Invoke(ctx, ProvisioningService_StartEC2MySQL_FullMethodName, in, out, cOpts...)
+	out := new(CostResponse)
+	err := c.cc.Invoke(ctx, ProvisioningService_PlanDeploy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *provisioningServiceClient) StartS3React(ctx context.Context, in *StartS3ReactRequest, opts ...grpc.CallOption) (*ProvisionStartResponse, error) {
+func (c *provisioningServiceClient) Deploy(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[DeployLog], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(ProvisionStartResponse)
-	err := c.cc.Invoke(ctx, ProvisioningService_StartS3React_FullMethodName, in, out, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &ProvisioningService_ServiceDesc.Streams[0], ProvisioningService_Deploy_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
-}
-
-func (c *provisioningServiceClient) StreamProvisionLogs(ctx context.Context, in *ProvisionLogRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvisionLog], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ProvisioningService_ServiceDesc.Streams[0], ProvisioningService_StreamProvisionLogs_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[ProvisionLogRequest, ProvisionLog]{ClientStream: stream}
+	x := &grpc.GenericClientStream[DeploymentRequest, DeployLog]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -92,36 +80,26 @@ func (c *provisioningServiceClient) StreamProvisionLogs(ctx context.Context, in 
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ProvisioningService_StreamProvisionLogsClient = grpc.ServerStreamingClient[ProvisionLog]
+type ProvisioningService_DeployClient = grpc.ServerStreamingClient[DeployLog]
 
-func (c *provisioningServiceClient) StreamComponentLogs(ctx context.Context, in *ComponentLogRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ProvisionLog], error) {
+func (c *provisioningServiceClient) StopDeploy(ctx context.Context, in *DeploymentRequest, opts ...grpc.CallOption) (*StatusResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ProvisioningService_ServiceDesc.Streams[1], ProvisioningService_StreamComponentLogs_FullMethodName, cOpts...)
+	out := new(StatusResponse)
+	err := c.cc.Invoke(ctx, ProvisioningService_StopDeploy_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[ComponentLogRequest, ProvisionLog]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
+	return out, nil
 }
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ProvisioningService_StreamComponentLogsClient = grpc.ServerStreamingClient[ProvisionLog]
 
 // ProvisioningServiceServer is the server API for ProvisioningService service.
 // All implementations must embed UnimplementedProvisioningServiceServer
 // for forward compatibility.
 type ProvisioningServiceServer interface {
-	StartEC2Spring(context.Context, *StartEC2SpringRequest) (*ProvisionStartResponse, error)
-	StartEC2MySQL(context.Context, *StartEC2MySQLRequest) (*ProvisionStartResponse, error)
-	StartS3React(context.Context, *StartS3ReactRequest) (*ProvisionStartResponse, error)
-	StreamProvisionLogs(*ProvisionLogRequest, grpc.ServerStreamingServer[ProvisionLog]) error
-	StreamComponentLogs(*ComponentLogRequest, grpc.ServerStreamingServer[ProvisionLog]) error
+	DestroyComponent(context.Context, *DeploymentRequest) (*StatusResponse, error)
+	PlanDeploy(context.Context, *DeploymentRequest) (*CostResponse, error)
+	Deploy(*DeploymentRequest, grpc.ServerStreamingServer[DeployLog]) error
+	StopDeploy(context.Context, *DeploymentRequest) (*StatusResponse, error)
 	mustEmbedUnimplementedProvisioningServiceServer()
 }
 
@@ -132,20 +110,17 @@ type ProvisioningServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedProvisioningServiceServer struct{}
 
-func (UnimplementedProvisioningServiceServer) StartEC2Spring(context.Context, *StartEC2SpringRequest) (*ProvisionStartResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartEC2Spring not implemented")
+func (UnimplementedProvisioningServiceServer) DestroyComponent(context.Context, *DeploymentRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DestroyComponent not implemented")
 }
-func (UnimplementedProvisioningServiceServer) StartEC2MySQL(context.Context, *StartEC2MySQLRequest) (*ProvisionStartResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartEC2MySQL not implemented")
+func (UnimplementedProvisioningServiceServer) PlanDeploy(context.Context, *DeploymentRequest) (*CostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PlanDeploy not implemented")
 }
-func (UnimplementedProvisioningServiceServer) StartS3React(context.Context, *StartS3ReactRequest) (*ProvisionStartResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StartS3React not implemented")
+func (UnimplementedProvisioningServiceServer) Deploy(*DeploymentRequest, grpc.ServerStreamingServer[DeployLog]) error {
+	return status.Errorf(codes.Unimplemented, "method Deploy not implemented")
 }
-func (UnimplementedProvisioningServiceServer) StreamProvisionLogs(*ProvisionLogRequest, grpc.ServerStreamingServer[ProvisionLog]) error {
-	return status.Errorf(codes.Unimplemented, "method StreamProvisionLogs not implemented")
-}
-func (UnimplementedProvisioningServiceServer) StreamComponentLogs(*ComponentLogRequest, grpc.ServerStreamingServer[ProvisionLog]) error {
-	return status.Errorf(codes.Unimplemented, "method StreamComponentLogs not implemented")
+func (UnimplementedProvisioningServiceServer) StopDeploy(context.Context, *DeploymentRequest) (*StatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method StopDeploy not implemented")
 }
 func (UnimplementedProvisioningServiceServer) mustEmbedUnimplementedProvisioningServiceServer() {}
 func (UnimplementedProvisioningServiceServer) testEmbeddedByValue()                             {}
@@ -168,81 +143,70 @@ func RegisterProvisioningServiceServer(s grpc.ServiceRegistrar, srv Provisioning
 	s.RegisterService(&ProvisioningService_ServiceDesc, srv)
 }
 
-func _ProvisioningService_StartEC2Spring_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartEC2SpringRequest)
+func _ProvisioningService_DestroyComponent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeploymentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProvisioningServiceServer).StartEC2Spring(ctx, in)
+		return srv.(ProvisioningServiceServer).DestroyComponent(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ProvisioningService_StartEC2Spring_FullMethodName,
+		FullMethod: ProvisioningService_DestroyComponent_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProvisioningServiceServer).StartEC2Spring(ctx, req.(*StartEC2SpringRequest))
+		return srv.(ProvisioningServiceServer).DestroyComponent(ctx, req.(*DeploymentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ProvisioningService_StartEC2MySQL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartEC2MySQLRequest)
+func _ProvisioningService_PlanDeploy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeploymentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ProvisioningServiceServer).StartEC2MySQL(ctx, in)
+		return srv.(ProvisioningServiceServer).PlanDeploy(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ProvisioningService_StartEC2MySQL_FullMethodName,
+		FullMethod: ProvisioningService_PlanDeploy_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProvisioningServiceServer).StartEC2MySQL(ctx, req.(*StartEC2MySQLRequest))
+		return srv.(ProvisioningServiceServer).PlanDeploy(ctx, req.(*DeploymentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ProvisioningService_StartS3React_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(StartS3ReactRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ProvisioningServiceServer).StartS3React(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ProvisioningService_StartS3React_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProvisioningServiceServer).StartS3React(ctx, req.(*StartS3ReactRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ProvisioningService_StreamProvisionLogs_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ProvisionLogRequest)
+func _ProvisioningService_Deploy_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(DeploymentRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(ProvisioningServiceServer).StreamProvisionLogs(m, &grpc.GenericServerStream[ProvisionLogRequest, ProvisionLog]{ServerStream: stream})
+	return srv.(ProvisioningServiceServer).Deploy(m, &grpc.GenericServerStream[DeploymentRequest, DeployLog]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ProvisioningService_StreamProvisionLogsServer = grpc.ServerStreamingServer[ProvisionLog]
+type ProvisioningService_DeployServer = grpc.ServerStreamingServer[DeployLog]
 
-func _ProvisioningService_StreamComponentLogs_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ComponentLogRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _ProvisioningService_StopDeploy_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeploymentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(ProvisioningServiceServer).StreamComponentLogs(m, &grpc.GenericServerStream[ComponentLogRequest, ProvisionLog]{ServerStream: stream})
+	if interceptor == nil {
+		return srv.(ProvisioningServiceServer).StopDeploy(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProvisioningService_StopDeploy_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProvisioningServiceServer).StopDeploy(ctx, req.(*DeploymentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ProvisioningService_StreamComponentLogsServer = grpc.ServerStreamingServer[ProvisionLog]
 
 // ProvisioningService_ServiceDesc is the grpc.ServiceDesc for ProvisioningService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -252,27 +216,22 @@ var ProvisioningService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ProvisioningServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "StartEC2Spring",
-			Handler:    _ProvisioningService_StartEC2Spring_Handler,
+			MethodName: "DestroyComponent",
+			Handler:    _ProvisioningService_DestroyComponent_Handler,
 		},
 		{
-			MethodName: "StartEC2MySQL",
-			Handler:    _ProvisioningService_StartEC2MySQL_Handler,
+			MethodName: "PlanDeploy",
+			Handler:    _ProvisioningService_PlanDeploy_Handler,
 		},
 		{
-			MethodName: "StartS3React",
-			Handler:    _ProvisioningService_StartS3React_Handler,
+			MethodName: "StopDeploy",
+			Handler:    _ProvisioningService_StopDeploy_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "StreamProvisionLogs",
-			Handler:       _ProvisioningService_StreamProvisionLogs_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "StreamComponentLogs",
-			Handler:       _ProvisioningService_StreamComponentLogs_Handler,
+			StreamName:    "Deploy",
+			Handler:       _ProvisioningService_Deploy_Handler,
 			ServerStreams: true,
 		},
 	},

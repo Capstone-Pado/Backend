@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
+func ProvisionReactService(req models.NodeBuildSpecTemplateData, logFile *os.File) error {
 	// 0. Deploy 디렉토리 확인
 	basePath := "workspaces/" + req.S3.DeploymentId
 	info, err := os.Stat(basePath)
@@ -35,8 +35,9 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 		AMI:          "ami-0c9c942bd7bf113a2",
 		Region:       req.S3.Region,
 		ComponentId:  req.Service.ComponentId,
-		AWSAccessKey: os.Getenv("AWS_ACCESS_KEY"),
-		AWSSecretKey: os.Getenv("AWS_SECRET_KEY"),
+		DeploymentId: req.S3.DeploymentId,
+		AWSAccessKey: req.S3.AWSAccessKey,
+		AWSSecretKey: req.S3.AWSSecretKey,
 	}
 
 	tmp.KeyName = tmp.ComponentId
@@ -48,7 +49,7 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 	}
 
 	// 2. Terraform Run
-	err = RunTerraform(basePath)
+	err = RunTerraform(basePath, logFile)
 	if err != nil {
 		return fmt.Errorf("terraform run error: %w", err)
 	}
@@ -73,11 +74,11 @@ func ProvisionReactService(req models.NodeBuildSpecTemplateData) error {
 	sshUser := "ubuntu" // 혹은 상황에 맞는 사용자명
 	keyPath := fmt.Sprintf("workspaces/%s/%s/id_rsa", req.S3.DeploymentId, req.Service.ComponentId)
 
-	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath)
+	err = utils.RunRemoteScript(ip, sshUser, keyPath, shPath, logFile)
 	if err != nil {
 		return fmt.Errorf("run remote script error: %w", err)
 	}
 	// 5. 임시 EC2 Destroy
-	DestroyEC2(req.S3.DeploymentId, req.Service.ComponentId)
+	DestroyEC2(req.S3.DeploymentId, req.Service.ComponentId, logFile)
 	return nil
 }

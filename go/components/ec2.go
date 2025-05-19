@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func ProvisionEC2(req models.EC2ProvisionRequest) error {
+func PlanProvisionEC2(req models.EC2ProvisionRequest) error {
 	basePath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentId, req.ComponentId)
 	_ = os.MkdirAll(basePath, 0755)
 
@@ -30,9 +30,14 @@ func ProvisionEC2(req models.EC2ProvisionRequest) error {
 	if err != nil {
 		return fmt.Errorf("template render error: %w", err)
 	}
+	return nil
+}
+
+func ProvisionEC2(req models.EC2ProvisionRequest, logFile *os.File) error {
+	basePath := fmt.Sprintf("workspaces/%s/%s", req.DeploymentId, req.ComponentId)
 
 	// 3. Terraform Run
-	err = RunTerraform(basePath)
+	err := RunTerraform(basePath, logFile)
 	if err != nil {
 		return fmt.Errorf("terraform run error: %w", err)
 	}
@@ -45,9 +50,9 @@ func ProvisionEC2(req models.EC2ProvisionRequest) error {
 	return nil
 }
 
-func DestroyEC2(deploymentId, componentId string) error {
+func DestroyEC2(deploymentId, componentId string, logFile *os.File) error {
 	basePath := fmt.Sprintf("workspaces/%s/%s", deploymentId, componentId)
-	if err := runTerraformCmd(basePath, "destroy", "-auto-approve"); err != nil {
+	if err := runTerraformCmd(basePath, logFile, "destroy", "-auto-approve"); err != nil {
 		return fmt.Errorf("terraform destroy error: %w", err)
 	}
 	return nil

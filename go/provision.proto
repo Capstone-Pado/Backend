@@ -5,12 +5,11 @@ package provision;
 option go_package = "proto/";
 
 service ProvisioningService {
-  rpc StartEC2Spring(StartEC2SpringRequest) returns (ProvisionStartResponse);
-  rpc StartEC2MySQL(StartEC2MySQLRequest) returns (ProvisionStartResponse);
-  rpc StartS3React(StartS3ReactRequest) returns (ProvisionStartResponse);
-
-  rpc StreamProvisionLogs(ProvisionLogRequest) returns (stream ProvisionLog);
-  rpc StreamComponentLogs(ComponentLogRequest) returns (stream ProvisionLog);
+  rpc DestroyComponent(DeploymentRequest) returns (StatusResponse);
+  
+  rpc PlanDeploy(DeploymentRequest) returns (CostResponse);
+  rpc Deploy(DeploymentRequest) returns (stream DeployLog);
+  rpc StopDeploy(DeploymentRequest) returns (StatusResponse);
 }
 
 message EC2Request {
@@ -70,6 +69,7 @@ message StartEC2SpringRequest {
     EC2Request EC2 = 1;
     SpringRequest Spring = 2;
     string DeploymentId = 3;
+    bool first = 4;
 }
 
 message StartS3ReactRequest {
@@ -77,6 +77,7 @@ message StartS3ReactRequest {
     ReactRequest React = 2;
     string DeploymentId = 3;
     string ComponentId = 4;
+    bool first = 5;
 }
 
 message StartEC2MySQLRequest {
@@ -84,21 +85,42 @@ message StartEC2MySQLRequest {
     MySQLRequest MySQL = 2;
     string DeploymentId = 3;
     string ComponentId = 4;
+    bool first = 5;
 }
 
-message ProvisionStartResponse {
+message ComponentSpec {
+  oneof component {
+    EC2Request EC2 = 1;
+    S3Request S3 = 2;
+    SpringRequest Spring = 3;
+    MySQLRequest MySQL = 4;
+    ReactRequest React = 5;
+  }
+}
+
+message DeploymentRequest {
+    string DeploymentId = 1;
+    repeated ComponentSpec Components = 2;
+}
+
+message DeployLog {
+    string DeploymentId = 1;
+    string ComponentId = 2;
+    string log_line = 3;
+}
+
+message StatusResponse {
     string status = 1;
     map<string, string> data = 2;
 }
 
-message ProvisionLogRequest {
-    string DeploymentId = 1;
-    string ComponentId = 2;
+message CostResponse {
+    string cost = 1;
+    map<string, string> data = 2;
 }
 
-message ComponentLogRequest {
+message DeploymentId {
     string DeploymentId = 1;
-    string ComponentId = 2;
 }
 
 message ProvisionLog {
