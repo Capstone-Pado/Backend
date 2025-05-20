@@ -51,13 +51,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ComponentService {
 
-    private ComponentRepository componentRepository;
-    private ComponentLinkRepository componentLinkRepository;
-    private ComponentStatusRepository componentStatusRepository;
-    private ProjectRepository projectRepository;
+    private final ComponentRepository componentRepository;
+    private final ComponentLinkRepository componentLinkRepository;
+    private final ComponentStatusRepository componentStatusRepository;
+    private final ProjectRepository projectRepository;
 
     // Mongo
-    private ComponentSettingRepository componentSettingRepository;
+    private final ComponentSettingRepository componentSettingRepository;
 
     /*
     컴포넌트 종류 조회
@@ -148,7 +148,7 @@ public class ComponentService {
         } else {
             // SERVICE 타입 → 자신의 부모(RESOURCE)의 ownedServices 리스트 갱신
             List<Component> childServices = componentRepository.findByParentComponentId(
-                parent.getComponentId());
+                parent);
 
             List<ComponentInfo.OwnedService> ownedServices = childServices.stream()
                 .map(service -> new ComponentInfo.OwnedService(

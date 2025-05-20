@@ -14,8 +14,8 @@ import com.pado.backend.domain.Project;
 public interface ComponentRepository extends JpaRepository<Component, Long>{
     List<Component> findByProject(Project project);
 
-    // 부모 컴포넌트 ID와 타입 기준으로 자식 컴포넌트 조회 (SERVICE 타입 자식용)
-    List<Component> findByParentComponentId(Long parentComponentId);
+    // 왜 만들었는지? RESOURCE 컴포넌트 아래에 배치된 SERVICE 컴포넌트들을 조회하려고.
+    List<Component> findByParentComponentId(Component parentComponent);
 
     // List<Component> findByParentComponentIdAndType(Long parentComponentId, String type);
     
