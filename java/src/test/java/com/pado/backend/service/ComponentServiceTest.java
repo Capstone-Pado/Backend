@@ -39,6 +39,7 @@ import com.pado.backend.repository.UserRepository;
 import com.pado.backend.repository.mongo.ComponentSettingRepository;
 import com.pado.backend.repository.mongo.ComponentStatusRepository;
 
+
 class ComponentServiceTest {
 
     @InjectMocks
@@ -125,13 +126,13 @@ class ComponentServiceTest {
 
         // 1차 저장: MySQL
         when(componentRepository.save(any(Component.class))).thenReturn(savedComponent1);
-        when(componentRepository.findByParentComponentId(parentComponentId)).thenReturn(List.of(savedComponent1));
+        when(componentRepository.findByParentComponentId(parent)).thenReturn(List.of(savedComponent1));
 
         ComponentDetailDto result1 = componentService.createComponentToProject(projectId, request1);
 
         // 2차 저장: Spring
         when(componentRepository.save(any(Component.class))).thenReturn(savedComponent2);
-        when(componentRepository.findByParentComponentId(parentComponentId)).thenReturn(List.of(savedComponent1, savedComponent2));
+        when(componentRepository.findByParentComponentId(parent)).thenReturn(List.of(savedComponent1, savedComponent2));
 
         ComponentDetailDto result2 = componentService.createComponentToProject(projectId, request2);
 

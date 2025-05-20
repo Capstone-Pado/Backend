@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 // TODO: 서비스 로직 구현
 public class AuthService {
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserRegisterResponseDto signup(UserRegisterRequestDto request) {
         return null;
